@@ -1,31 +1,37 @@
 // DailyBestsellers.jsx
 import React from 'react';
+import product1 from "../../assets/home/product1.png";
+import product2 from "../../assets/home/product2.png";
+import product3 from "../../assets/home/product3.png";
+import product4 from "../../assets/home/product4.png";
+
 const products = [
   {
     title: "Aegle marmelos Fruit",
     price: "$32.00",
     oldPrice: "$40.00",
-    image: "/products/product1.jpg",
+    image: product1, 
   },
   {
     title: "Organic Tomato Chips",
     price: "$18.00",
     oldPrice: "$25.00",
-    image: "/products/product2.jpg",
+    image: product2,
   },
   {
     title: "Toasted Turmeric Crispy",
     price: "$22.00",
     oldPrice: "$28.00",
-    image: "/products/product3.jpg",
+    image: product3,
   },
   {
     title: "Avocado Lighting",
     price: "$16.00",
     oldPrice: "$20.00",
-    image: "/products/product4.jpg",
+    image: product4, 
   },
 ];
+
 
 export default function DailyBestsellers() {
   return (
