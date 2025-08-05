@@ -1,5 +1,15 @@
-import React from "react";
+import React from 'react';
+import HeroSection from '../../Components/HeroSection/HeroSection';
+import CategoriesSection from '../../Components/CategoriesSection/Categories';
+import DailyBestsellers from '../../Components/DailyBestsellers/DailyBestsellers';
 
-const Home = () => <h2 className="text-center mt-10 text-xl">Home Page</h2>;
+export default function Home() {
+  return (
+    <main>
+      <HeroSection />
+      <CategoriesSection />
+      <DailyBestsellers />
+    </main>
+  );
+}
 
-export default Home;

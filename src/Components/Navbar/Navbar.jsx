@@ -16,7 +16,6 @@ const Navbar = () => {
     <header className="w-full border-b bg-white">
       {/* Top Navbar */}
       <div className="flex items-center justify-between px-4 py-3 lg:px-8">
-        {/* Left: Hamburger + Logo */}
         <div className="flex items-center mx-2 gap-4">
           <Menu className="lg:hidden cursor-pointer" />
           <div className="flex items-center mx-2 gap-2">
@@ -46,16 +45,14 @@ const Navbar = () => {
           </Link>
         </nav>
 
-        {/* Right: Phone */}
         <div className="hidden mx-2  lg:flex items-center gap-1 text-sm text-gray-500">
           <Phone size={16} />
           <span>+123 ( 456 ) 7890</span>
         </div>
       </div>
 
-      {/* Bottom Row: Search + Icons */}
+
       <div className="px-4 pb-3 mx-2 lg:px-8 hidden lg:flex items-center justify-between gap-6">
-        {/* Search Bar */}
         <div className="flex w-full mx-2 max-w-4xl border rounded overflow-hidden">
           <input
             type="text"
@@ -72,7 +69,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Account / Wishlist / Cart */}
+
         <div className="flex items-center gap-6 text-sm text-gray-700 whitespace-nowrap">
           <Link to="/account" className="flex items-center gap-1">
             <User size={18} />
