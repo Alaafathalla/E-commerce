@@ -5,6 +5,8 @@ import '@splidejs/react-splide/css';
 import dish1 from '../../assets/home/dish1.png'
 import dish2 from '../../assets/home/dish2.png';
 import dish3 from '../../assets/home/dish3.png';
+import dish4 from '../../assets/home/dish4.png';
+import dish5 from '../../assets/home/dish5.png';
 import { Heart } from 'lucide-react';
 
 const dishes = [
@@ -22,6 +24,16 @@ const dishes = [
     title: 'Egg vegi salad',
     description: 'Description of the item',
     image:dish3,
+  },
+    {
+    title: 'Vegetable salad',
+    description: 'Description of the item',
+    image: dish4,
+  },
+      {
+    title: 'Vegetable salad',
+    description: 'Description of the item',
+    image: dish5,
   },
 ];
 
