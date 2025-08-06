@@ -6,10 +6,10 @@ export default function CTASection() {
   return (
     <>
       {/* CTA Banner */}
-      <section className="bg-gradient-to-r from-[#3e3f3c] to-[#2c2d2a] text-white rounded-2xl mx-4 sm:mx-6 lg:mx-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-6 py-12 gap-10">
+      <section className=" relative min-h-[30vh] bg-gradient-to-r  from-[#686964] to-[#2c2d2a] text-white rounded-2xl mx-4 sm:mx-6 lg:mx-8 overflow-hidden">
+        <div className="max-w-7xl px  mx-auto flex flex-col lg:flex-row items-center justify-between  py-12 gap-10">
           {/* Text */}
-          <div className="max-w-md space-y-4">
+          <div className="max-w-md space-y-2 px-14">
             <h2 className="text-2xl font-bold leading-snug">
               Stay home & get your daily needs from our shop
             </h2>
@@ -34,7 +34,7 @@ export default function CTASection() {
           </div>
 
           {/* Right Image */}
-          <img src={ctaGuy} alt="Delivery" className="w-64 sm:w-72 lg:w-80" />
+          <img src={ctaGuy} alt="Delivery" className="w-80  sm:w-80 lg:w-120 absolute top-5 right-6 "  />
         </div>
       </section>
 
