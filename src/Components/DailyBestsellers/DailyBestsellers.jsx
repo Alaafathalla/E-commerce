@@ -10,7 +10,7 @@ const products = [
     title: "Aegle marmelos Fruit",
     price: "$32.00",
     oldPrice: "$40.00",
-    image: product1, 
+    image: product1,
   },
   {
     title: "Organic Tomato Chips",
@@ -28,27 +28,34 @@ const products = [
     title: "Avocado Lighting",
     price: "$16.00",
     oldPrice: "$20.00",
-    image: product4, 
+    image: product4,
   },
 ];
 
-
 export default function DailyBestsellers() {
   return (
-    <section className="py-16 bg-gray-100 px-6">
+    <section className="py-16 bg-gray-100 px-4 sm:px-6 lg:px-10">
       <h2 className="text-3xl font-bold text-center mb-10">Daily Best Sells</h2>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="bg-green-100 p-6 rounded-lg flex flex-col justify-between">
+
+      <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3  xl:grid-cols-5 gap-6">
+        {/* Promo card - spans full on mobile, 1 col otherwise */}
+        <div className="bg-green-100 p-6 rounded-lg flex flex-col justify-between min-h-[300px] col-span-1">
           <h3 className="text-xl font-semibold mb-4">Bring nature into your home</h3>
           <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition">
             Shop Now
           </button>
         </div>
+
+        {/* Product cards */}
         {products.map((product, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow">
-            <img src={product.image} alt={product.title} className="h-40 w-full object-cover rounded" />
-            <h4 className="mt-3 font-semibold">{product.title}</h4>
-            <div className="flex items-center gap-2">
+          <div key={index} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
+            <img
+              src={product.image}
+              alt={product.title}
+              className="h-56 sm:h-64 w-full object-cover rounded"
+            />
+            <h4 className="mt-3 font-semibold text-base sm:text-lg">{product.title}</h4>
+            <div className="flex items-center gap-2 mt-1">
               <span className="text-green-600 font-bold">{product.price}</span>
               <span className="line-through text-gray-400">{product.oldPrice}</span>
             </div>
@@ -61,3 +68,5 @@ export default function DailyBestsellers() {
     </section>
   );
 }
+
+
