@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar";
 import Home from "./Pages/Home/Home";
 import Footer from "./Components/Footer/Footer";
-import Login from "./Pages/Login/Login"; // ✅ Required
+import Login from "./Pages/Login/Login";
+import Register from "./Pages/Register/Rsgister" 
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 
@@ -11,7 +12,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // ✅ Use actual auth later
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Fake auth for now
 
   useEffect(() => {
     const root = document.documentElement;
@@ -26,17 +27,13 @@ function App() {
 
   return (
     <div className="min-h-screen w-full bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
-      {/* 🌞/🌙 Toggle Button */}
+      {/* Theme Toggle */}
       <div className="fixed top-4 right-4 z-50">
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
         >
-          {darkMode ? (
-            <FaSun className="text-yellow-400 text-xl" />
-          ) : (
-            <FaMoon className="text-gray-700 text-xl" />
-          )}
+          {darkMode ? <FaSun className="text-yellow-400 text-xl" /> : <FaMoon className="text-gray-700 text-xl" />}
         </button>
       </div>
 
@@ -45,10 +42,8 @@ function App() {
       <main className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route
-            path="/login"
-            element={isLoggedIn ? <Navigate to="/" /> : <Login />}
-          />
+          <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </main>
       <Footer />

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
+import login from "../../assets/login.png"; 
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +28,7 @@ const Login = () => {
       <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-md rounded px-8 py-6 space-y-6">
         {/* Logo */}
         <div className="text-center">
-          <img src="/logo.png" alt="Logo" className="w-16 h-16 mx-auto mb-2" />
+          <img src= {login} alt="Logo" className="w-16 h-16 mx-auto mb-2" />
           <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">FoodTrove</h1>
         </div>
 
@@ -97,7 +98,7 @@ const Login = () => {
               {/* Signup */}
               <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                 Don’t have an account?{" "}
-                <a href="#" className="text-red-500 hover:underline">
+                <a href="/register" className="text-red-500 hover:underline">
                   Signup
                 </a>
               </p>
