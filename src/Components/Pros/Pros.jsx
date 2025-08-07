@@ -34,7 +34,12 @@ export default function CTASection() {
           </div>
 
           {/* Right Image */}
-          <img src={ctaGuy} alt="Delivery" className="w-80  sm:w-80 lg:w-120 absolute top-5 right-6 "  />
+<img 
+  src={ctaGuy} 
+  alt="Delivery" 
+  className="hidden lg:block w-80 lg:w-120 absolute top-5 right-6" 
+/>
+
         </div>
       </section>
 
