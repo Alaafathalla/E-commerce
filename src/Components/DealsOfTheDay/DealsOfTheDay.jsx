@@ -42,13 +42,15 @@ const products = [
 
 export default function DealsOfTheDay() {
   return (
-    <section className="max-w-7xl mx-auto py-10 px-10 sm:px-12 lg:px-8">
+    <section className="max-w-7xl mx-auto py-10 px-6 sm:px-12 lg:px-8 bg-white dark:bg-gray-900 transition-colors duration-300">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Deals Of The Day</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white">
+          Deals Of The Day
+        </h2>
         <a
           href="/deals"
-          className="flex items-center text-sm sm:text-base text-gray-600 hover:text-red-500 font-medium"
+          className="flex items-center text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:text-red-500 font-medium transition"
         >
           Show All Deals <ArrowRight className="ml-1 w-4 h-4" />
         </a>
@@ -59,7 +61,7 @@ export default function DealsOfTheDay() {
         {products.map((product, idx) => (
           <div
             key={idx}
-            className="w-[47%] sm:w-[48%] md:w-[31%] lg:w-[23%] bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+            className="w-[47%] sm:w-[48%] md:w-[31%] lg:w-[23%] bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
           >
             {/* Image */}
             <img
@@ -69,8 +71,8 @@ export default function DealsOfTheDay() {
             />
 
             {/* Card Content */}
-            <div className="-mt-4 bg-white mx-4 p-4 rounded-lg shadow relative z-10 space-y-2 text-sm">
-              <h3 className="text-gray-800 font-medium leading-snug text-sm sm:text-base">
+            <div className="-mt-4 bg-white dark:bg-gray-800 mx-4 p-4 rounded-lg shadow relative z-10 space-y-2 text-sm text-gray-800 dark:text-white">
+              <h3 className="font-medium leading-snug text-sm sm:text-base">
                 {product.title}
               </h3>
 
@@ -79,20 +81,26 @@ export default function DealsOfTheDay() {
                 {[...Array(Math.round(product.rating))].map((_, i) => (
                   <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
                 ))}
-                <span className="text-gray-500 ml-2">({product.rating.toFixed(1)})</span>
+                <span className="text-gray-500 dark:text-gray-400 ml-2">
+                  ({product.rating.toFixed(1)})
+                </span>
               </div>
 
-              <p className="text-xs text-gray-500">
-                By <span className="text-green-500">{product.brand}</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                By <span className="text-green-600 dark:text-green-400">{product.brand}</span>
               </p>
 
               {/* Prices & Add Button */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="text-sm space-x-2">
-                  <span className="text-green-600 font-semibold">{product.price}</span>
-                  <span className="text-gray-400 line-through">{product.oldPrice}</span>
+                  <span className="text-green-600 dark:text-green-400 font-semibold">
+                    {product.price}
+                  </span>
+                  <span className="text-gray-400 dark:text-gray-500 line-through">
+                    {product.oldPrice}
+                  </span>
                 </div>
-                <button className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-1.5 rounded w-full sm:w-auto">
+                <button className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-1.5 rounded w-full sm:w-auto transition">
                   🛒 Add
                 </button>
               </div>
@@ -103,6 +111,7 @@ export default function DealsOfTheDay() {
     </section>
   );
 }
+
 
 
 

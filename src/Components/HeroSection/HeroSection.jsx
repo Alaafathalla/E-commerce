@@ -10,12 +10,12 @@ import {
   Instagram,
   Twitter,
   ArrowRight,
-} from 'lucide-react'; // ✅ Lucide icons
+} from 'lucide-react';
 
 export default function RoastTurkeyHero() {
   return (
     <section
-      className="relative w-full min-h-[80vh] bg-cover bg-center text-white flex items-center justify-center px-4 sm:px-6 md:px-16 overflow-hidden"
+      className="relative w-full min-h-[80vh] bg-cover bg-center text-white dark:text-white flex items-center justify-center px-4 sm:px-6 md:px-16 overflow-hidden transition-colors duration-300"
       style={{ backgroundImage: `url(${background})` }}
     >
       {/* Left Chili */}
@@ -29,14 +29,13 @@ export default function RoastTurkeyHero() {
       <img
         src={chiliRight}
         alt="chili"
-        className="absolute bottom-50 right-10 w-50 sm:w-24 md:w-32 lg:w-50 rotate-45"
+        className="absolute bottom-50 right-10 w-40 sm:w-24 md:w-32 lg:w-50 rotate-45"
       />
 
       {/* Content */}
       <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between z-10 gap-10">
         {/* Left Text */}
         <div className="w-full md:w-1/2 space-y-4 md:space-y-6 text-center md:text-left">
-      
           <img
             src={heading}
             alt="Roast Turkey"
@@ -56,17 +55,17 @@ export default function RoastTurkeyHero() {
 
       {/* Order Now Button */}
       <div className="absolute bottom-6 left-1/2 md:left-10 transform -translate-x-1/2 md:translate-x-0 z-10">
-        <button className="bg-yellow-400 hover:bg-yellow-500 text-[#3f2e1e] font-semibold px-6 py-3 rounded-full text-base flex items-center gap-2 shadow-md">
+        <button className="bg-yellow-400 hover:bg-yellow-500 text-[#3f2e1e] font-semibold px-6 py-3 rounded-full text-base flex items-center gap-2 shadow-md transition">
           <ArrowRight size={20} /> Order Now
         </button>
       </div>
 
       {/* Contact Info and Social Icons */}
-      <div className="absolute bottom-6 right-6 text-sm text-gray-300 space-y-1 text-right z-10">
+      <div className="absolute bottom-6 right-6 text-sm text-gray-200 dark:text-gray-300 space-y-1 text-right z-10">
         <div className="flex justify-end gap-4 text-lg">
-          <Facebook size={18} />
-          <Instagram size={18} />
-          <Twitter size={18} />
+          <Facebook className="hover:text-yellow-400 transition" size={18} />
+          <Instagram className="hover:text-yellow-400 transition" size={18} />
+          <Twitter className="hover:text-yellow-400 transition" size={18} />
         </div>
         <p>Call Us: +688-7854-9634</p>
         <p>TypoLuvKitchen</p>
@@ -74,6 +73,7 @@ export default function RoastTurkeyHero() {
     </section>
   );
 }
+
 
 
 

@@ -16,14 +16,14 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-r from-[#fdfdfd] to-[#f4f4f4] text-gray-700 border-t border-gray-200 shadow-inner">
+    <footer className="bg-gradient-to-r from-[#fdfdfd] to-[#f4f4f4] dark:from-gray-900 dark:to-gray-800 text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700 shadow-inner transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Logo + Info */}
         <div className="space-y-4 text-start">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Foody" className="w-12 h-12 rounded-full" />
             <div>
-              <h2 className="text-xl font-bold text-gray-800">Foodzy</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">Foodzy</h2>
               <p className="text-sm text-gray-400">A Product of Tomato</p>
             </div>
           </div>
@@ -47,9 +47,16 @@ const Footer = () => {
 
         {/* Company Links */}
         <div className="space-y-4 text-start">
-          <h3 className="text-xl font-semibold text-gray-800 ">Company</h3>
-          <ul className="space-y-2 text-sm text-gray-600 ">
-            {["About Us", "Delivery Information", "Privacy Policy", "Terms & Conditions", "Contact Us", "Support Center"].map((item, i) => (
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-white">Company</h3>
+          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            {[
+              "About Us",
+              "Delivery Information",
+              "Privacy Policy",
+              "Terms & Conditions",
+              "Contact Us",
+              "Support Center",
+            ].map((item, i) => (
               <li key={i} className="hover:text-red-500 transition">{item}</li>
             ))}
           </ul>
@@ -57,9 +64,16 @@ const Footer = () => {
 
         {/* Categories */}
         <div className="space-y-4 text-start">
-          <h3 className="text-xl font-semibold text-gray-800">Category</h3>
-          <ul className="space-y-2 text-sm text-gray-600">
-            {["Dairy & Bakery", "Fruits & Vegetable", "Snack & Spice", "Juice & Drinks", "Chicken & Meat", "Fast Food"].map((item, i) => (
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-white">Category</h3>
+          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            {[
+              "Dairy & Bakery",
+              "Fruits & Vegetable",
+              "Snack & Spice",
+              "Juice & Drinks",
+              "Chicken & Meat",
+              "Fast Food",
+            ].map((item, i) => (
               <li key={i} className="hover:text-red-500 transition">{item}</li>
             ))}
           </ul>
@@ -67,30 +81,31 @@ const Footer = () => {
 
         {/* Newsletter */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-gray-800">Subscribe Our Newsletter</h3>
-          <div className="flex items-center border border-gray-300 rounded-full overflow-hidden shadow-sm">
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-white">Subscribe Our Newsletter</h3>
+          <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-full overflow-hidden shadow-sm">
             <input
               type="text"
               placeholder="Search here.."
-              className="w-full px-4 py-2 text-sm outline-none bg-white"
+              className="w-full px-4 py-2 text-sm outline-none bg-white dark:bg-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 transition">➤</button>
+            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 transition">
+              ➤
+            </button>
           </div>
 
-<div className="flex space-x-4">
-  <div className="bg-white p-3 rounded-2xl  shadow hover:text-red-500 transition text-black cursor-pointer">
-    <FaFacebookF className="text-xl" />
-  </div>
-  <div className="bg-white p-3 rounded-2xl shadow hover:text-red-500 transition text-black cursor-pointer">
-    <FaTwitter className="text-xl" />
-  </div>
-  <div className="bg-white p-3 rounded-2xl shadow hover:text-red-500 transition text-black cursor-pointer">
-    <FaInstagram className="text-xl" />
-  </div>
-</div>
+          {/* Social Icons */}
+          <div className="flex space-x-4">
+            {[FaFacebookF, FaTwitter, FaInstagram].map((Icon, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-700 p-3 rounded-2xl shadow hover:text-red-500 transition text-black dark:text-white cursor-pointer"
+              >
+                <Icon className="text-xl" />
+              </div>
+            ))}
+          </div>
 
-
-
+          {/* Gallery Images */}
           <div className="grid grid-cols-5 gap-2">
             {[img1, img2, img3, img4, img5].map((img, index) => (
               <img
@@ -105,7 +120,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Text */}
-      <div className="text-center text-sm text-gray-500 py-4 border-t border-gray-200 mt-8">
+      <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-4 border-t border-gray-200 dark:border-gray-700 mt-8">
         © 2025 <span className="text-red-500 font-medium">Foodzy</span>, All rights reserved.
       </div>
     </footer>
@@ -113,4 +128,5 @@ const Footer = () => {
 };
 
 export default Footer;
+
 
