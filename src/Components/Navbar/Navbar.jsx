@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Menu,
   Search,
@@ -7,28 +7,53 @@ import {
   Heart,
   ShoppingCart,
   ChevronDown,
+  X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("token"));
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 transition-colors duration-300">
-      {/* Top Navbar */}
+      {/* Top Bar */}
       <div className="flex items-center justify-between px-4 py-3 lg:px-8">
-        {/* Left: Mobile Menu + Logo */}
+        {/* Logo & Toggle */}
         <div className="flex items-center gap-4">
-          <Menu className="lg:hidden cursor-pointer text-gray-700 dark:text-gray-200" />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden text-gray-700 dark:text-gray-200"
+          >
+            {isMobileMenuOpen ? <X /> : <Menu />}
+          </button>
+
           <div className="flex items-center gap-2">
             <img src={logo} alt="logo" className="w-14 h-14 rounded-full" />
             <div className="leading-tight">
-              <p className="text-lg font-bold text-gray-800 dark:text-white">Foodzy</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">A Treasure of Tastes</p>
+              <p className="text-lg font-bold text-gray-800 dark:text-white">
+                Foodzy
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                A Treasure of Tastes
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Middle: Nav Links */}
+        {/* Desktop Links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
           <Link to="/">Home</Link>
           <Link to="/category" className="flex items-center gap-1">
@@ -46,16 +71,37 @@ const Navbar = () => {
           </Link>
         </nav>
 
-        {/* Phone Number */}
+        {/* Phone */}
         <div className="hidden lg:flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300">
           <Phone size={16} />
-          <span>+123 ( 456 ) 7890</span>
+          <span>+123 (456) 7890</span>
         </div>
       </div>
 
-      {/* Search + Actions */}
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden px-4 py-3 space-y-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 text-sm font-medium">
+          <Link to="/" className="block" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+          <Link to="/category" className="block" onClick={() => setIsMobileMenuOpen(false)}>Category</Link>
+          <Link to="#" className="block">Products</Link>
+          <Link to="#" className="block">Pages</Link>
+          <Link to="#" className="block">Blog</Link>
+          <Link to="#" className="block">Elements</Link>
+          <div className="pt-2 border-t dark:border-gray-700 space-y-2">
+            {!isLoggedIn ? (
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block text-red-600">Login</Link>
+            ) : (
+              <button onClick={logout} className="block text-left text-red-600 w-full">Logout</button>
+            )}
+            <Link to="/wishlist" className="block">Wishlist</Link>
+            <Link to="/cart" className="block">Cart</Link>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Search + Actions */}
       <div className="px-4 pb-3 lg:px-8 hidden lg:flex items-center justify-between gap-6">
-        {/* Search Bar */}
+        {/* Search */}
         <div className="flex w-full max-w-4xl border border-gray-300 dark:border-gray-600 rounded overflow-hidden bg-white dark:bg-gray-800">
           <input
             type="text"
@@ -72,12 +118,19 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* User Icons */}
-        <div className="flex items-center gap-6 text-sm whitespace-nowrap text-gray-700 dark:text-gray-200">
-          <Link to="/account" className="flex items-center gap-1 hover:text-red-500">
-            <User size={18} />
-            <span>Account</span>
-          </Link>
+        {/* Actions */}
+        <div className="flex items-center gap-6 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
+          {!isLoggedIn ? (
+            <Link to="/login" className="flex items-center gap-1 hover:text-red-500">
+              <User size={18} />
+              <span>Login</span>
+            </Link>
+          ) : (
+            <Link to="/account" className="flex items-center gap-1 hover:text-red-500">
+              <User size={18} />
+              <span>Account</span>
+            </Link>
+          )}
           <Link to="/wishlist" className="flex items-center gap-1 hover:text-red-500">
             <Heart size={18} />
             <span>Wishlist</span>
@@ -93,6 +146,7 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
 
 

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar";
 import Home from "./Pages/Home/Home";
 import Footer from "./Components/Footer/Footer";
+import Login from "./Pages/Login/Login"; // ✅ Required
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 
@@ -10,6 +11,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // ✅ Use actual auth later
 
   useEffect(() => {
     const root = document.documentElement;
@@ -43,6 +45,10 @@ function App() {
       <main className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route
+            path="/login"
+            element={isLoggedIn ? <Navigate to="/" /> : <Login />}
+          />
         </Routes>
       </main>
       <Footer />
@@ -51,4 +57,5 @@ function App() {
 }
 
 export default App;
+
 
