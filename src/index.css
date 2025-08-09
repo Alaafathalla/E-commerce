@@ -20,7 +20,6 @@
 
 body {
   margin: 0;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -48,11 +47,7 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-body{
-margin:0;
-padding: 0;
-width: 100%;
-}
+
 
 
 html, body, #root {
@@ -66,7 +61,7 @@ html, body, #root {
   :root {
     color: #213547;
     background-color: #ffffff;
-    max-width: 100%;
+
   }
 
 

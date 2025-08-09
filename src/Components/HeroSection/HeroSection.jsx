@@ -1,78 +1,55 @@
-import React from 'react';
-import background from '../../assets/home/background.png';
-import turkeyImage from '../../assets/home/hero.png';
-import chiliLeft from '../../assets/home/hero2.png';
-import chiliRight from '../../assets/home/hero3.png';
-import heading from '../../assets/home/heading.png';
+import React from "react";
+import pastaImg from "../../assets/home/pastaImg.png"; // Your right-side pasta image
+import bgImg from "../../assets/home/background.png"; // Your background image
 
-import {
-  Facebook,
-  Instagram,
-  Twitter,
-  ArrowRight,
-} from 'lucide-react';
-
-export default function RoastTurkeyHero() {
+const HeroSection = () => {
   return (
     <section
-      className="relative w-full min-h-[80vh] bg-cover bg-center text-white dark:text-white flex items-center justify-center px-4 sm:px-6 md:px-16 overflow-hidden transition-colors duration-300"
-      style={{ backgroundImage: `url(${background})` }}
+      className="relative bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgImg})` }}
     >
-      {/* Left Chili */}
-      <img
-        src={chiliLeft}
-        alt="chili"
-        className="absolute top-10 left-0 w-16 sm:w-24 md:w-40 lg:w-60"
-      />
+      <div className=" max-h-100 px-6 lg:px-12 py-16 flex flex-col lg:flex-row items-center justify-between">
+        
+        {/* Left Content */}
+        <div className="text-white max-w-lg space-y-4">
+          {/* <p className="text-gray-300">Super Delicious</p>
+          <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight">
+            THE BEST WAY TO <br /> STUFF YOUR WALLET.
+          </h1>
+          <p className="text-gray-400">Today's Best Deal</p> */}
 
-      {/* Right Chili */}
-      <img
-        src={chiliRight}
-        alt="chili"
-        className="absolute bottom-50 right-10 w-40 sm:w-24 md:w-32 lg:w-50 rotate-45"
-      />
-
-      {/* Content */}
-      <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between z-10 gap-10">
-        {/* Left Text */}
-        <div className="w-full md:w-1/2 space-y-4 md:space-y-6 text-center md:text-left">
-          <img
-            src={heading}
-            alt="Roast Turkey"
-            className="w-[300px] sm:w-[400px] md:w-[600px]"
-          />
+          {/* Discount & Button */}
+          <div className="flex items-center gap-6 mt-6">
+            {/* <div className="border-2 border-white rounded-full px-4 py-2 text-center">
+              <span className="text-xl font-bold">50% OFF</span>
+            </div> */}
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 mt-50 ml-25 rounded-full font-semibold">
+              ORDER NOW
+            </button>
+          </div>
         </div>
 
-        {/* Turkey Image */}
-        <div className="w-full md:w-1/2 flex justify-center">
+        {/* Right Image */}
+        <div className="mt-10 lg:mt-0 lg:w-1/2 flex justify-center relative">
           <img
-            src={turkeyImage}
-            alt="Roast Turkey"
-            className="w-[250px] sm:w-[350px] md:w-[450px] lg:w-[500px]"
+            src={pastaImg}
+            alt="Delicious Pasta"
+            className="max-w-sm lg:max-w-md drop-shadow-lg"
           />
         </div>
       </div>
 
-      {/* Order Now Button */}
-      <div className="absolute bottom-6 left-1/2 md:left-10 transform -translate-x-1/2 md:translate-x-0 z-10">
-        <button className="bg-yellow-400 hover:bg-yellow-500 text-[#3f2e1e] font-semibold px-6 py-3 rounded-full text-base flex items-center gap-2 shadow-md transition">
-          <ArrowRight size={20} /> Order Now
-        </button>
-      </div>
-
-      {/* Contact Info and Social Icons */}
-      <div className="absolute bottom-6 right-6 text-sm text-gray-200 dark:text-gray-300 space-y-1 text-right z-10">
-        <div className="flex justify-end gap-4 text-lg">
-          <Facebook className="hover:text-yellow-400 transition" size={18} />
-          <Instagram className="hover:text-yellow-400 transition" size={18} />
-          <Twitter className="hover:text-yellow-400 transition" size={18} />
-        </div>
-        <p>Call Us: +688-7854-9634</p>
-        <p>TypoLuvKitchen</p>
+      {/* Contact Info */}
+      <div className="absolute bottom-4 right-8 text-orange-400 text-sm font-bold">
+        609-791-3583 <br />
+        <span className="text-white">WWW.EXEMPLE.COM</span>
       </div>
     </section>
   );
-}
+};
+
+export default HeroSection;
+
 
 
 

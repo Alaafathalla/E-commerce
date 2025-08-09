@@ -28,7 +28,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 transition-colors duration-300">
+    <header className="w-full border-b border-gray-200 dark:border-gray-700 px-40 mx-auto bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 transition-colors duration-300">
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 py-3 lg:px-8">
         {/* Logo & Toggle */}
@@ -65,7 +65,7 @@ const Navbar = () => {
           <Link to="#" className="flex items-center gap-1">
             Pages <ChevronDown size={14} />
           </Link>
-          <Link to="#">Blog</Link>
+          <Link to="/blog">Blog</Link>
           <Link to="#" className="flex items-center gap-1">
             Elements <ChevronDown size={14} />
           </Link>

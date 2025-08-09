@@ -4,7 +4,8 @@ import Navbar from "./Components/Navbar/Navbar";
 import Home from "./Pages/Home/Home";
 import Footer from "./Components/Footer/Footer";
 import Login from "./Pages/Login/Login";
-import Register from "./Pages/Register/Rsgister" 
+import Register from "./Pages/Register/Rsgister" ;
+import Blog from "./Pages/Blog/Blog" ;
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 
@@ -44,6 +45,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
           <Route path="/register" element={<Register />} />
+             <Route path="/blog" element={<Blog />} />
         </Routes>
       </main>
       <Footer />
