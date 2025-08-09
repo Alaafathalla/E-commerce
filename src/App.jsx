@@ -9,6 +9,7 @@ import Blog from "./Pages/Blog/Blog";
 import Cart from "./Pages/Cart/Cart";
 import Checkout from "./Pages/Checkout/Checkout";
 import FAQ from "./Components/FAQ/FAQ";
+import Products from "./Pages/Products/Products";
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 
@@ -48,7 +49,7 @@ function App() {
 
       {/* App Layout */}
       <Navbar />
-      <main className="pt-16">
+      <main >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -57,6 +58,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
                 <Route path="/faq" element={<FAQ/>} />
+                  <Route path="/products" element={<Products/>} />
         </Routes>
       </main>
       <Footer />

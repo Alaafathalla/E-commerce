@@ -5,10 +5,10 @@ import bgImg from "../../assets/home/background.png"; // Your background image
 const HeroSection = () => {
   return (
     <section
-      className="relative bg-cover bg-center"
+      className="relative bg-cover bg-center min-h-[70vh] flex items-center"
       style={{ backgroundImage: `url(${bgImg})` }}
     >
-      <div className=" max-h-100 px-6 lg:px-12 py-16 flex flex-col lg:flex-row items-center justify-between">
+      <div className="w-full  px-6 lg:px-12  flex flex-col lg:flex-row items-center justify-between">
         
         {/* Left Content */}
         <div className="text-white max-w-lg space-y-4">
@@ -23,7 +23,7 @@ const HeroSection = () => {
             {/* <div className="border-2 border-white rounded-full px-4 py-2 text-center">
               <span className="text-xl font-bold">50% OFF</span>
             </div> */}
-            <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 mt-50 ml-25 rounded-full font-semibold">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 mt-50 ml-55 rounded-full font-semibold">
               ORDER NOW
             </button>
           </div>
@@ -31,11 +31,12 @@ const HeroSection = () => {
 
         {/* Right Image */}
         <div className="mt-10 lg:mt-0 lg:w-1/2 flex justify-center relative">
-          <img
-            src={pastaImg}
-            alt="Delicious Pasta"
-            className="max-w-sm lg:max-w-md drop-shadow-lg"
-          />
+<img
+  src={pastaImg}
+  alt="Delicious Pasta"
+  className="w-56 sm:w-72 md:w-[420px] lg:w-[520px] xl:w-[620px] 2xl:w-[700px] h-auto object-contain drop-shadow-lg"
+/>
+
         </div>
       </div>
 
@@ -49,6 +50,7 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+
 
 
 
