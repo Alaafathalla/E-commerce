@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ChevronLeft } from "lucide-react";
 
 // swap with your real images
@@ -187,9 +188,12 @@ export default function CartPage() {
                   ${total.toFixed(2)}
                 </span>
               </div>
-              <button className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md font-medium">
-                Check Out
-              </button>
+    
+<Link to="/checkout">
+  <button className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md font-medium">
+    Check Out
+  </button>
+</Link>
             </div>
           </div>
         </div>

@@ -4,9 +4,10 @@ import Navbar from "./Components/Navbar/Navbar";
 import Home from "./Pages/Home/Home";
 import Footer from "./Components/Footer/Footer";
 import Login from "./Pages/Login/Login";
-import Register from "./Pages/Register/Rsgister" ;
-import Blog from "./Pages/Blog/Blog" ;
-import Cart from "./Pages/Cart/Cart" ;
+import Register from "./Pages/Register/Rsgister";
+import Blog from "./Pages/Blog/Blog";
+import Cart from "./Pages/Cart/Cart";
+import Checkout from "./Pages/Checkout/Checkout";
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 
@@ -35,7 +36,11 @@ function App() {
           onClick={() => setDarkMode(!darkMode)}
           className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
         >
-          {darkMode ? <FaSun className="text-yellow-400 text-xl" /> : <FaMoon className="text-gray-700 text-xl" />}
+          {darkMode ? (
+            <FaSun className="text-yellow-400 text-xl" />
+          ) : (
+            <FaMoon className="text-gray-700 text-xl" />
+          )}
         </button>
       </div>
 
@@ -44,10 +49,11 @@ function App() {
       <main className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={ <Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-             <Route path="/blog" element={<Blog />} />
-                    <Route path="/cart" element={<Cart  />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </main>
       <Footer />
@@ -56,5 +62,3 @@ function App() {
 }
 // isLoggedIn ? <Navigate to="/" /> :
 export default App;
-
-
