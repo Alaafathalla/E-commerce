@@ -6,6 +6,7 @@ import Footer from "./Components/Footer/Footer";
 import Login from "./Pages/Login/Login";
 import Register from "./Pages/Register/Rsgister" ;
 import Blog from "./Pages/Blog/Blog" ;
+import Cart from "./Pages/Cart/Cart" ;
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 
@@ -13,7 +14,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Fake auth for now
+  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Fake auth for now
 
   useEffect(() => {
     const root = document.documentElement;
@@ -43,16 +44,17 @@ function App() {
       <main className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
+          <Route path="/login" element={ <Login />} />
           <Route path="/register" element={<Register />} />
              <Route path="/blog" element={<Blog />} />
+                    <Route path="/cart" element={<Cart  />} />
         </Routes>
       </main>
       <Footer />
     </div>
   );
 }
-
+// isLoggedIn ? <Navigate to="/" /> :
 export default App;
 
 
