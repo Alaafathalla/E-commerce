@@ -59,7 +59,7 @@ const Navbar = () => {
           <Link to="/category" className="flex items-center gap-1">
             Category <ChevronDown size={14} />
           </Link>
-          <Link to="#" className="flex items-center gap-1">
+          <Link to="/products" className="flex items-center gap-1">
             Products <ChevronDown size={14} />
           </Link>
           <Link to="#" className="flex items-center gap-1">
@@ -83,7 +83,7 @@ const Navbar = () => {
         <div className="lg:hidden px-4 py-3 space-y-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 text-sm font-medium">
           <Link to="/" className="block" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
           <Link to="/category" className="block" onClick={() => setIsMobileMenuOpen(false)}>Category</Link>
-          <Link to="#" className="block">Products</Link>
+          <Link to="/products" className="block">Products</Link>
           <Link to="#" className="block">Pages</Link>
           <Link to="#" className="block">Blog</Link>
           <Link to="#" className="block">Elements</Link>
