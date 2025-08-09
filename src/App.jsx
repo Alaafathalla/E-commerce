@@ -8,8 +8,10 @@ import Register from "./Pages/Register/Rsgister";
 import Blog from "./Pages/Blog/Blog";
 import Cart from "./Pages/Cart/Cart";
 import Checkout from "./Pages/Checkout/Checkout";
+import FAQ from "./Components/FAQ/FAQ";
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
+
 
 function App() {
   const [darkMode, setDarkMode] = useState(
@@ -54,6 +56,7 @@ function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+                <Route path="/faq" element={<FAQ/>} />
         </Routes>
       </main>
       <Footer />
