@@ -1,18 +1,19 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, Plus, Tag } from "lucide-react";
-
+import { useEffect } from "react";
+import axios from "axios";
 
 // Swap these with your real images
-import p1 from "../../assets/products/p1.png";
-import p2 from "../../assets/products/p2.png";
-import p3 from "../../assets/products/p3.png";
-import p4 from "../../assets/products/p4.png";
-import p5 from "../../assets/products/p5.png";
-import p6 from "../../assets/products/p6.png";
-import p7 from "../../assets/products/p7.png";
-import p8 from "../../assets/products/p8.png";
-import p9 from "../../assets/products/p9.png";
+// import p1 from "../../assets/products/p1.png";
+// import p2 from "../../assets/products/p2.png";
+// import p3 from "../../assets/products/p3.png";
+// import p4 from "../../assets/products/p4.png";
+// import p5 from "../../assets/products/p5.png";
+// import p6 from "../../assets/products/p6.png";
+// import p7 from "../../assets/products/p7.png";
+// import p8 from "../../assets/products/p8.png";
+// import p9 from "../../assets/products/p9.png";
 
 const CATEGORIES = [
   "All",
@@ -24,66 +25,9 @@ const CATEGORIES = [
   "Fruits",
 ];
 
-const PRODUCTS = [
-  {
-    id: 1,
-    title: "Fresh organic villa farm lemon 500gm pack",
-    category: "Fruits",
-    vendor: "NestFood",
-    tag: "Hot",
-    price: 28.85,
-    oldPrice: 32.8,
-    rating: 4.0,
-    image: p1,
-  },
-  {
-    id: 2,
-    title: "Best snacks with hazel nut pack 200gm",
-    category: "Meats",
-    vendor: "Stouffer",
-    tag: "Sale",
-    price: 52.85,
-    oldPrice: 55.8,
-    rating: 4.5,
-    image: p2,
-  },
-  {
-    id: 3,
-    title: "Organic fresh vanilla farm watermelon 5kg",
-    category: "Fruits",
-    vendor: "StarKist",
-    tag: "New",
-    price: 48.85,
-    oldPrice: 52.8,
-    rating: 4.0,
-    image: p3,
-  },
-  {
-    id: 4,
-    title: "Fresh organic apple 1kg simla marning",
-    category: "Vegetables",
-    vendor: "NestFood",
-    price: 17.85,
-    oldPrice: 19.8,
-    rating: 4.0,
-    image: p4,
-  },
-  {
-    id: 5,
-    title: "Blue Diamond Almonds Lightly Salted Vegetables",
-    category: "Pet Foods",
-    vendor: "NestFood",
-    tag: "-18%",
-    price: 23.85,
-    oldPrice: 25.8,
-    rating: 4.0,
-    image: p5,
-  },
-  { id: 6, title: "Chobani Complete Vanilla Greek Yogurt", category: "Milks & Dairies", vendor: "NestFood", price: 54.85, oldPrice: 59.8, rating: 4.0, image: p6 },
-  { id: 7, title: "Canada Dry Ginger Ale 2L Bottle", category: "Meats", vendor: "NestFood", price: 32.85, oldPrice: 33.8, rating: 4.2, image: p7 },
-  { id: 8, title: "Gorton’s Beer Battered Fish Fillets", category: "Coffes & Teas", vendor: "Old El Paso", tag: "Hot", price: 23.85, oldPrice: 25.8, rating: 3.8, image: p8 },
-  { id: 9, title: "Haagen-Dazs Caramel Cone Ice Cream", category: "Milks & Dairies", vendor: "Tyson", price: 22.85, oldPrice: 24.8, rating: 4.1, image: p9 },
-];
+// const PRODUCTS = [
+//   { ... your static seed data ... }
+// ];
 
 function Rating({ value }) {
   const full = Math.round(value);
@@ -92,13 +36,23 @@ function Rating({ value }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star key={i} size={14} fill={i < full ? "currentColor" : "none"} strokeWidth={1.5} />
       ))}
-      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">({value.toFixed(1)})</span>
+      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">({Number(value).toFixed(1)})</span>
     </div>
   );
 }
 
+/* ⬇️ moved the top-level effect inside ProductsPage; leaving here commented to avoid breaking hooks rules
+useEffect(() => {
+  let isMounted = true;
+  axios.get("https://dummyjson.com/products")
+    .then(({ data }) => { if (isMounted) console.log(data); })
+    .catch(console.error);
+  return () => { isMounted = false; };
+}, []);
+*/
+
 function ProductCard({ p, onAdd }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition">
       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800 mb-3">
@@ -107,7 +61,13 @@ function ProductCard({ p, onAdd }) {
             {p.tag}
           </span>
         )}
-        <img src={p.image} alt={p.title} className="w-full h-full  " />
+        <img
+          src={p.image}
+          alt={p.title}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
 
       <p className="text-xs text-gray-500 dark:text-gray-400">{p.category}</p>
@@ -116,27 +76,34 @@ function ProductCard({ p, onAdd }) {
       </h3>
 
       <div className="mt-1">
-        <Rating value={p.rating} />
+        <Rating value={p.rating || 0} />
       </div>
 
       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        By <span className="text-green-600">{p.vendor}</span>
+        By <span className="text-green-600">{p.vendor || "Unknown"}</span>
       </p>
 
       <div className="mt-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-green-600 font-semibold">${p.price.toFixed(2)}</span>
+          <span className="text-green-600 font-semibold">${Number(p.price ?? 0).toFixed(2)}</span>
+          {/* old: always showed oldPrice -> can crash if undefined
           <span className="text-xs text-gray-400 line-through">${p.oldPrice.toFixed(2)}</span>
+          */}
+          {p.oldPrice != null && (
+            <span className="text-xs text-gray-400 line-through">
+              ${Number(p.oldPrice).toFixed(2)}
+            </span>
+          )}
         </div>
-     <button
-      onClick={() => {
-        onAdd(p);           
-        navigate("/cart"); 
-      }}
-      className="inline-flex items-center gap-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1.5"
-    >
-      Add
-    </button>
+        <button
+          onClick={() => {
+            onAdd(p);
+            navigate("/cart");
+          }}
+          className="inline-flex items-center gap-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1.5"
+        >
+          Add
+        </button>
       </div>
     </div>
   );
@@ -147,6 +114,60 @@ export default function ProductsPage() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("popular");
 
+  // ⬇️ NEW: products fetched from DummyJSON and mapped to your card shape
+  const [products, setProducts] = useState([]);        // replaces PRODUCTS
+  const [loading, setLoading] = useState(true);        // simple loading flag
+  const [error, setError] = useState(null);            // simple error flag
+
+  useEffect(() => {
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const { data } = await axios.get("https://dummyjson.com/products");
+        if (!isMounted) return;
+
+        // map DummyJSON -> your UI schema
+        const mapped = (data?.products || []).map((p) => {
+          const oldPriceCalc =
+            p.discountPercentage && p.discountPercentage > 0
+              ? +(p.price / (1 - p.discountPercentage / 100)).toFixed(2)
+              : +(p.price * 1.1).toFixed(2); // small markup if no discount
+
+        // choose a simple tag rule
+          let tag;
+          if (p.discountPercentage >= 25) tag = "Sale";
+          else if (p.rating >= 4.6) tag = "Hot";
+          else tag = undefined;
+
+          return {
+            id: p.id,
+            title: p.title,
+            category: p.category,
+            vendor: p.brand,
+            tag,
+            price: Number(p.price),
+            oldPrice: Number(oldPriceCalc),
+            rating: Number(p.rating ?? 0),
+            image: p.thumbnail || p.images?.[0],
+          };
+        });
+
+        setProducts(mapped);
+      } catch (e) {
+        setError("Failed to load products.");
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  /* old filtering based on static PRODUCTS
   const filtered = useMemo(() => {
     let list = PRODUCTS.filter(p =>
       (active === "All" || p.category === active) &&
@@ -157,6 +178,22 @@ export default function ProductsPage() {
     if (sort === "alpha") list.sort((a, b) => a.title.localeCompare(b.title));
     return list;
   }, [active, query, sort]);
+  */
+
+  // ⬇️ NEW: filtering on fetched products
+  const filtered = useMemo(() => {
+    let list = products.filter(
+      (p) =>
+        (active === "All" || p.category === active) &&
+        p.title.toLowerCase().includes(query.toLowerCase())
+    );
+
+    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
+    if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
+    if (sort === "alpha") list = [...list].sort((a, b) => a.title.localeCompare(b.title));
+    // "popular" left as-is
+    return list;
+  }, [products, active, query, sort]);
 
   const handleAdd = (p) => {
     // hook this into your cart
@@ -222,12 +259,26 @@ export default function ProductsPage() {
         ))}
       </div>
 
+      {/* Loading / Error states */}
+      {loading && (
+        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">Loading products…</div>
+      )}
+      {error && (
+        <div className="mt-6 text-sm text-red-600">{error}</div>
+      )}
+
       {/* Grid */}
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {filtered.map((p) => (
           <ProductCard key={p.id} p={p} onAdd={handleAdd} />
         ))}
       </div>
+
+      {/* Optional: empty state */}
+      {!loading && !error && filtered.length === 0 && (
+        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">No products found.</div>
+      )}
     </section>
   );
 }
+
