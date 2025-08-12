@@ -112,33 +112,46 @@ export default function ProductsPage() {
       try {
         setLoading(true);
         setError(null);
-        const { data } = await axios.get("https://dummyjson.com/products");
+       const { data } = await axios.get("https://dummyjson.com/recipes");
+
+const mapped = (data?.recipes || []).map((r) => ({
+  id: r.id,
+  title: r.name,                   // recipes -> name
+  category: r.cuisine || "Recipe", // or r.mealType?.[0]
+  vendor: r.userId ? `User ${r.userId}` : "Unknown",
+  tag: r.rating >= 4.6 ? "Hot" : undefined,
+  price: 0,                        // no price in recipes
+  oldPrice: null,
+  rating: Number(r.rating ?? 0),
+  image: r.image,                  // recipes -> image
+}));
+setProducts(mapped);
 
         if (!isMounted) return;
 
         // map API -> your card schema
-        const mapped = (data?.products || []).map((p) => {
-          const oldPriceCalc =
-            p.discountPercentage && p.discountPercentage > 0
-              ? +(p.price / (1 - p.discountPercentage / 100)).toFixed(2)
-              : +(p.price * 1.1).toFixed(2);
+        // const mapped = (data?.products || []).map((p) => {
+        //   const oldPriceCalc =
+        //     p.discountPercentage && p.discountPercentage > 0
+        //       ? +(p.price / (1 - p.discountPercentage / 100)).toFixed(2)
+        //       : +(p.price * 1.1).toFixed(2);
 
-          let tag;
-          if (p.discountPercentage >= 25) tag = "Sale";
-          else if (p.rating >= 4.6) tag = "Hot";
+        //   let tag;
+        //   if (p.discountPercentage >= 25) tag = "Sale";
+        //   else if (p.rating >= 4.6) tag = "Hot";
 
-          return {
-            id: p.id,
-            title: p.title,
-            category: p.category,
-            vendor: p.brand,
-            tag,
-            price: Number(p.price),
-            oldPrice: Number(oldPriceCalc),
-            rating: Number(p.rating ?? 0),
-            image: p.thumbnail || p.images?.[0],
-          };
-        });
+        //   return {
+        //     id: p.id,
+        //     title: p.title,
+        //     category: p.category,
+        //     vendor: p.brand,
+        //     tag,
+        //     price: Number(p.price),
+        //     oldPrice: Number(oldPriceCalc),
+        //     rating: Number(p.rating ?? 0),
+        //     image: p.thumbnail || p.images?.[0],
+        //   };
+        // });
 
         setProducts(mapped);
       } catch (e) {

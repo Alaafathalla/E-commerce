@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
-// swap with your own image
+// swap with your own image/
 import faqImg from "../../assets/faq.png";
 
 const faqs = [
