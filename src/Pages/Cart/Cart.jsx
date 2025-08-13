@@ -1,8 +1,11 @@
-import React, { useMemo, useState } from "react";
+// src/Pages/Cart/CartPage.jsx
+import React, { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ChevronLeft } from "lucide-react";
+import useCartStore from "../../Stores/useCartStore";   // ⬅️ UI cart store
+import useDataStore from "../../Stores/useDataStore";   // ⬅️ API store (server sync)
 
-// swap with your real images
+// images
 import p1 from "../../assets/cart/1.png";
 import p2 from "../../assets/cart/2.png";
 import p3 from "../../assets/cart/3.png";
@@ -13,6 +16,7 @@ import cart7 from "../../assets/cart/7.png";
 import cart8 from "../../assets/cart/8.png";
 import cart9 from "../../assets/cart/9.png";
 
+// dev/demo seed
 const initialItems = [
   { id: 1, title: "Organic Lemon", price: 56, image: p1, qty: 1 },
   { id: 2, title: "Apple Juice", price: 75, image: p2, qty: 1 },
@@ -22,24 +26,61 @@ const initialItems = [
 ];
 
 export default function CartPage() {
-  const [items, setItems] = useState(initialItems);
+  // UI cart (local)
+  const items      = useCartStore((s) => s.items);
+  const inc        = useCartStore((s) => s.inc);
+  const dec        = useCartStore((s) => s.dec);
+  const setQty     = useCartStore((s) => s.setQty);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const addItem    = useCartStore((s) => s.addItem);
 
-  const updateQty = (id, delta) =>
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id === id ? { ...it, qty: Math.max(1, it.qty + delta) } : it
-      )
-    );
+  // Server sync
+  const addToCartServer = useDataStore((s) => s.addToCart);
 
-  const removeItem = (id) =>
-    setItems((prev) => prev.filter((it) => it.id !== id));
+  // Replace with your real logged-in user id
+  const userId = 5;
+
+  // Seed once in dev (LOCAL ONLY; do not call the API here)
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (seededRef.current) return;
+    if (!Array.isArray(items) || items.length > 0) return;
+    initialItems.forEach((it) => addItem(it, it.qty || 1));
+    seededRef.current = true;
+  }, [items, addItem]);
+
+  // ✅ The handler you asked for
+  const handleAddToCart = async (product, qty = 1) => {
+    // 1) update local cart instantly
+    addItem(product, qty);
+
+    // 2) (optional) sync to server — MUST use DummyJSON product IDs
+    // If your product IDs are not from /products, comment this out or map them properly
+    const pid = Number(product.id);
+    if (!Number.isFinite(pid) || pid <= 0) return;
+
+    try {
+      await addToCartServer({
+        userId: Number(userId),
+        products: [{ id: pid, quantity: Math.max(1, Number(qty) || 1) }],
+      });
+    } catch (e) {
+      // don’t crash UI on API failure
+      console.warn("Server sync failed:", e.message || e);
+    }
+  };
+
+  const updateQty = (id, delta) => (delta > 0 ? inc(id) : dec(id));
 
   const subtotal = useMemo(
-    () => items.reduce((s, it) => s + it.price * it.qty, 0),
+    () =>
+      (items ?? []).reduce(
+        (s, it) => s + (Number(it.price) || 0) * (Number(it.qty) || 0),
+        0
+      ),
     [items]
   );
 
-  // mock shipping/discounts
   const shipping = subtotal > 200 ? 0 : 10;
   const total = subtotal + shipping;
 
@@ -56,7 +97,7 @@ export default function CartPage() {
         </div>
 
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {items.map((it) => (
+          {(items ?? []).map((it) => (
             <li key={it.id} className="px-4 md:px-4 py-4">
               {/* Desktop row */}
               <div className="hidden md:grid grid-cols-12 items-center gap-4">
@@ -67,14 +108,12 @@ export default function CartPage() {
                     className="w-14 h-14 object-contain rounded bg-white"
                   />
                   <div>
-                    <p className="font-medium text-gray-800 dark:text-white">
-                      {it.title}
-                    </p>
+                    <p className="font-medium text-gray-800 dark:text-white">{it.title}</p>
                   </div>
                 </div>
 
                 <div className="col-span-2 text-gray-700 dark:text-gray-300">
-                  ${it.price.toFixed(2)}
+                  ${Number(it.price).toFixed(2)}
                 </div>
 
                 <div className="col-span-2">
@@ -86,7 +125,22 @@ export default function CartPage() {
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="px-4 py-2 text-sm">{it.qty}</span>
+
+                    <input
+                      aria-label="quantity"
+                      className="w-12 text-center border-x border-gray-300 dark:border-gray-600 py-2 outline-none bg-transparent"
+                      value={it.qty}
+                      onChange={(e) =>
+                        setQty(
+                          it.id,
+                          Math.max(
+                            1,
+                            Math.min(99, Number(String(e.target.value).replace(/\D/g, "")) || 1)
+                          )
+                        )
+                      }
+                    />
+
                     <button
                       aria-label="increase"
                       onClick={() => updateQty(it.id, 1)}
@@ -98,7 +152,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="col-span-1 font-semibold text-gray-800 dark:text-white">
-                  ${(it.price * it.qty).toFixed(2)}
+                  ${(Number(it.price) * Number(it.qty)).toFixed(2)}
                 </div>
 
                 <div className="col-span-1 flex justify-center">
@@ -114,37 +168,25 @@ export default function CartPage() {
 
               {/* Mobile card */}
               <div className="md:hidden flex items-start gap-3">
-                <img
-                  src={it.image}
-                  alt={it.title}
-                  className="w-16 h-16 object-contain rounded bg-white"
-                />
+                <img src={it.image} alt={it.title} className="w-16 h-16 object-contain rounded bg-white" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-800 dark:text-white">
-                    {it.title}
-                  </p>
+                  <p className="font-medium text-gray-800 dark:text-white">{it.title}</p>
                   <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                    ${it.price.toFixed(2)} each
+                    ${Number(it.price).toFixed(2)} each
                   </div>
 
                   <div className="mt-3 flex items-center justify-between">
                     <div className="inline-flex items-center rounded border border-gray-300 dark:border-gray-600">
-                      <button
-                        onClick={() => updateQty(it.id, -1)}
-                        className="p-2"
-                      >
+                      <button onClick={() => updateQty(it.id, -1)} className="p-2">
                         <Minus size={14} />
                       </button>
                       <span className="px-3">{it.qty}</span>
-                      <button
-                        onClick={() => updateQty(it.id, 1)}
-                        className="p-2"
-                      >
+                      <button onClick={() => updateQty(it.id, 1)} className="p-2">
                         <Plus size={14} />
                       </button>
                     </div>
                     <div className="font-semibold text-gray-800 dark:text-white">
-                      ${(it.price * it.qty).toFixed(2)}
+                      ${(Number(it.price) * Number(it.qty)).toFixed(2)}
                     </div>
                     <button
                       onClick={() => removeItem(it.id)}
@@ -161,10 +203,7 @@ export default function CartPage() {
 
         {/* Footer actions */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 bg-gray-50 dark:bg-gray-800">
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline"
-          >
+          <a href="/" className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline">
             <ChevronLeft size={16} /> Continue Shopping
           </a>
 
@@ -188,107 +227,61 @@ export default function CartPage() {
                   ${total.toFixed(2)}
                 </span>
               </div>
-    
-<Link to="/checkout">
-  <button className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md font-medium">
-    Check Out
-  </button>
-</Link>
+
+              <Link to="/checkout">
+                <button className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md font-medium">
+                  Check Out
+                </button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
       {/* Popular Products */}
-      <PopularProducts />
+      <PopularProducts onAdd={handleAddToCart} />
     </section>
   );
 }
 
 /* ---------------- Popular products (static demo) ----------------- */
-function PopularProducts() {
+function PopularProducts({ onAdd }) {
   const products = [
-    {
-      id: 101,
-      title: "Best snacks with hazel nut mix pack 200gm",
-      price: 120.25,
-      oldPrice: 123.0,
-      image: cart6,
-        
-      tag: "Snacks",
-    },
-    {
-      id: 102,
-      title: "Sweet snacks crunchy nut mix 250gm pack",
-      price: 100.0,
-      oldPrice: 110.0,
-      image:
-       cart7,
-      tag: "Snacks",
-    },
-    {
-      id: 103,
-      title: "Best snacks with hazel nut mix pack 200gm",
-      price: 120.25,
-      oldPrice: 123.0,
-      image:
-      cart8,
-      tag: "Snacks",
-    },
-    {
-      id: 104,
-      title: "Sweet snacks crunchy nut mix 250gm pack",
-      price: 100.0,
-      oldPrice: 110.0,
-      image:
-      cart9,
-      tag: "Snacks",
-    },
+    { id: 101, title: "Best snacks with hazel nut mix pack 200gm", price: 120.25, oldPrice: 123.0, image: cart6, tag: "Snacks" },
+    { id: 102, title: "Sweet snacks crunchy nut mix 250gm pack",   price: 100.0,  oldPrice: 110.0, image: cart7, tag: "Snacks" },
+    { id: 103, title: "Best snacks with hazel nut mix pack 200gm", price: 120.25, oldPrice: 123.0, image: cart8, tag: "Snacks" },
+    { id: 104, title: "Sweet snacks crunchy nut mix 250gm pack",   price: 100.0,  oldPrice: 110.0, image: cart9, tag: "Snacks" },
   ];
 
   return (
     <section className="mt-14">
       <div className="text-center max-w-2xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-          Popular Products
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Popular Products</h2>
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incidunt ut labore et viverra accumsan lacus vel
-          facilisis.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incidunt ut labore et viverra accumsan lacus vel facilisis.
         </p>
       </div>
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {products.map((p) => (
-          <div
-            key={p.id}
-            className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition"
-          >
-            <div className=" w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800">
-              <img
-                src={p.image}
-                alt={p.title}
-                className="w-full h-full object-contain"
-              />
+          <div key={p.id} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition">
+            <div className="w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800">
+              <img src={p.image} alt={p.title} className="w-full h-full object-contain" />
             </div>
 
             <div className="mt-3">
               <p className="text-xs text-gray-500 dark:text-gray-400">{p.tag}</p>
-              <h3 className="mt-1 text-sm font-semibold text-gray-800 dark:text-white line-clamp-2">
-                {p.title}
-              </h3>
+              <h3 className="mt-1 text-sm font-semibold text-gray-800 dark:text-white line-clamp-2">{p.title}</h3>
 
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-red-500 font-semibold">
-                  ${p.price.toFixed(2)}
-                </span>
-                <span className="text-xs text-gray-400 line-through">
-                  ${p.oldPrice.toFixed(2)}
-                </span>
+                <span className="text-red-500 font-semibold">${p.price.toFixed(2)}</span>
+                <span className="text-xs text-gray-400 line-through">${p.oldPrice.toFixed(2)}</span>
               </div>
 
-              <button className="mt-3 w-full rounded-md border border-gray-200 dark:border-gray-700 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
+              <button
+                className="mt-3 w-full rounded-md border border-gray-200 dark:border-gray-700 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                onClick={() => onAdd?.(p, 1)}
+              >
                 Add to Cart
               </button>
             </div>
@@ -298,3 +291,5 @@ function PopularProducts() {
     </section>
   );
 }
+
+

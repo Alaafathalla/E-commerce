@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Star, Tag } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import useDataStore from "../../Stores/useDataStore";
+import useCartStore from "../../Stores/useCartStore";
 
 const CATEGORIES = [
   "All",
@@ -77,7 +78,7 @@ function ProductCard({ p, onAdd }) {
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => {
-            onAdd(p);
+            onAdd?.(p);
             navigate("/cart");
           }}
           className="flex-1 inline-flex items-center justify-center gap-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1.5"
@@ -101,7 +102,7 @@ export default function ProductsPage() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("popular");
 
-  // snapshot ثابت باستخدام useShallow
+  // جِب الداتا من الستور بتاع الـ recipes
   const { recipes, loading, error } = useDataStore(
     useShallow((s) => ({
       recipes: s.recipes,
@@ -109,8 +110,10 @@ export default function ProductsPage() {
       error: s.error,
     }))
   );
-  // الأكشن primitive لوحده
   const getMyRecipes = useDataStore((s) => s.getMyRecipes);
+
+  // 🛒 أكشن إضافة للكارت من useCartStore
+  const addItem = useCartStore((s) => s.addItem);
 
   // منع تكرار الفetch في Strict Mode
   const fetchedRef = useRef(false);
@@ -150,9 +153,17 @@ export default function ProductsPage() {
     return list;
   }, [products, active, query, sort]);
 
+  // ✅ الهاندلر الصحيح للإضافة للكارت
   const handleAdd = (p) => {
-    // اربطه بستيت الكارت لاحقًا (zustand تاني)
-    console.log("ADD TO CART:", p.id);
+    addItem(
+      {
+        id: p.id,
+        title: p.title ?? p.name,
+        price: Number(p.price ?? 0),
+        image: p.image,
+      },
+      1
+    );
   };
 
   return (
@@ -182,14 +193,6 @@ export default function ProductsPage() {
             <option value="price-desc">Price: High → Low</option>
             <option value="alpha">Alphabetical</option>
           </select>
-
-          {/* Refresh يتجاهل الكاش */}
-          {/* <button
-            onClick={() => getMyRecipes(true)}
-            className="rounded-md px-3 py-2 text-sm bg-black text-white"
-          >
-            تحديث الآن
-          </button> */}
         </div>
       </div>
 
@@ -242,6 +245,7 @@ export default function ProductsPage() {
     </section>
   );
 }
+
 
 
 

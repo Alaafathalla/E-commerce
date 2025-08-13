@@ -145,44 +145,61 @@ const useDataStore = create((set, get) => ({
     }
   },
 
-  addToCart: async ({ userId, products }) => {
-    // POST https://dummyjson.com/carts/add
-    // body: { userId, products: [{ id, quantity }] }
-    set({ addCartLoading: true, addCartError: null });
-    try {
-      const { data: newCart } = await api.post(
-        "/carts/add",
-        { userId, products },
-        { headers: { "Content-Type": "application/json" } }
-      );
+addToCart: async ({ userId, products }) => {
+  // validate input
+  const uid = Number(userId);
+  const cleaned = Array.isArray(products)
+    ? products
+        .map(p => ({
+          id: Number(p.id),
+          quantity: Math.max(1, Number(p.quantity) || 0),
+        }))
+        .filter(p => Number.isFinite(p.id) && p.id > 0 && Number.isFinite(p.quantity) && p.quantity > 0)
+    : [];
 
-      // update per-user cache optimistically
-      set((state) => {
-        const prev = state.userCartsByUserId[userId]?.carts || [];
-        const snapshot = {
-          carts: [newCart, ...prev],
-          total: (state.userCartsByUserId[userId]?.total || 0) + 1,
-          skip: 0,
-          limit: state.userCartsByUserId[userId]?.limit ?? prev.length + 1,
-        };
-        return {
-          userCartsByUserId: { ...state.userCartsByUserId, [userId]: snapshot },
-          addCartLoading: false,
-        };
-      });
+  if (!Number.isFinite(uid) || uid <= 0) {
+    throw new Error("addToCart: userId must be a positive number");
+  }
+  if (cleaned.length === 0) {
+    throw new Error("addToCart: products must be a non-empty array of {id, quantity}");
+  }
 
-      return newCart;
-    } catch (err) {
-      set({
-        addCartError:
-          err.response?.data?.message ||
-          (err.message?.includes("Network") ? "Network error" : "Failed to add to cart"),
-        addCartLoading: false,
-      });
-      throw err;
-    }
-  },
+  try {
+    const { data } = await api.post(
+      "/carts/add",
+      { userId: uid, products: cleaned },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return data;
+  } catch (err) {
+    // log server message for debugging
+    console.error("addToCart failed:", err.response?.status, err.response?.data || err.message);
+    throw new Error(err.response?.data?.message || "Failed to add to cart (400). Check payload.");
+  }
+},
+updateCart: async (cartId, { products, merge = true }) => {
+  if (!cartId) throw new Error("cartId required");
+  try {
+    const { data } = await api.put(`/carts/${cartId}`, { merge, products }, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return data; // updated cart
+  } catch (err) {
+    const msg = err.response?.data?.message || "Failed to update cart";
+    throw new Error(msg);
+  }
+},
 
+deleteCart: async (cartId) => {
+  if (!cartId) throw new Error("cartId required");
+  try {
+    const { data } = await api.delete(`/carts/${cartId}`);
+    return data; // deleted cart info
+  } catch (err) {
+    const msg = err.response?.data?.message || "Failed to delete cart";
+    throw new Error(msg);
+  }
+},
   addCartLoading: false,
   addCartError: null,
 }));
