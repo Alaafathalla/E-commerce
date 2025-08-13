@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+// src/Pages/Products/Products.jsx
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, Tag } from "lucide-react";
-import axios from "axios";
+import { useShallow } from "zustand/react/shallow";
+import useDataStore from "../../Stores/useDataStore";
 
 const CATEGORIES = [
   "All",
@@ -14,7 +16,7 @@ const CATEGORIES = [
 ];
 
 function Rating({ value }) {
-  const full = Math.round(value);
+  const full = Math.round(value || 0);
   return (
     <div className="flex items-center gap-0.5 text-yellow-500">
       {Array.from({ length: 5 }).map((_, i) => (
@@ -52,7 +54,7 @@ function ProductCard({ p, onAdd }) {
       </h3>
 
       <div className="mt-1">
-        <Rating value={p.rating || 0} />
+        <Rating value={p.rating} />
       </div>
 
       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -72,7 +74,6 @@ function ProductCard({ p, onAdd }) {
         </div>
       </div>
 
-      {/* Keep your style; just add Details btn */}
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => {
@@ -100,74 +101,43 @@ export default function ProductsPage() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("popular");
 
-  // fetched products (replaces static)
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // snapshot ثابت باستخدام useShallow
+  const { recipes, loading, error } = useDataStore(
+    useShallow((s) => ({
+      recipes: s.recipes,
+      loading: s.loading,
+      error: s.error,
+    }))
+  );
+  // الأكشن primitive لوحده
+  const getMyRecipes = useDataStore((s) => s.getMyRecipes);
 
+  // منع تكرار الفetch في Strict Mode
+  const fetchedRef = useRef(false);
   useEffect(() => {
-    let isMounted = true;
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    getMyRecipes(); // أو getMyRecipes(true) لتجاهل الكاش
+  }, [getMyRecipes]);
 
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-       const { data } = await axios.get("https://dummyjson.com/recipes");
+  // map recipes -> شكل الكارت
+  const products = useMemo(
+    () =>
+      (recipes || []).map((r) => ({
+        id: r.id,
+        title: r.name,
+        category: r.cuisine || r.mealType?.[0] || "Recipe",
+        vendor: r.userId ? `User ${r.userId}` : "Unknown",
+        tag: Number(r.rating ?? 0) >= 4.6 ? "Hot" : undefined,
+        price: 0,
+        oldPrice: null,
+        rating: Number(r.rating ?? 0),
+        image: r.image,
+      })),
+    [recipes]
+  );
 
-const mapped = (data?.recipes || []).map((r) => ({
-  id: r.id,
-  title: r.name,                   // recipes -> name
-  category: r.cuisine || "Recipe", // or r.mealType?.[0]
-  vendor: r.userId ? `User ${r.userId}` : "Unknown",
-  tag: r.rating >= 4.6 ? "Hot" : undefined,
-  price: 0,                        // no price in recipes
-  oldPrice: null,
-  rating: Number(r.rating ?? 0),
-  image: r.image,                  // recipes -> image
-}));
-setProducts(mapped);
-
-        if (!isMounted) return;
-
-        // map API -> your card schema
-        // const mapped = (data?.products || []).map((p) => {
-        //   const oldPriceCalc =
-        //     p.discountPercentage && p.discountPercentage > 0
-        //       ? +(p.price / (1 - p.discountPercentage / 100)).toFixed(2)
-        //       : +(p.price * 1.1).toFixed(2);
-
-        //   let tag;
-        //   if (p.discountPercentage >= 25) tag = "Sale";
-        //   else if (p.rating >= 4.6) tag = "Hot";
-
-        //   return {
-        //     id: p.id,
-        //     title: p.title,
-        //     category: p.category,
-        //     vendor: p.brand,
-        //     tag,
-        //     price: Number(p.price),
-        //     oldPrice: Number(oldPriceCalc),
-        //     rating: Number(p.rating ?? 0),
-        //     image: p.thumbnail || p.images?.[0],
-        //   };
-        // });
-
-        setProducts(mapped);
-      } catch (e) {
-        setError("Failed to load products.");
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // your filtering/sorting
+  // فلترة/ترتيب
   const filtered = useMemo(() => {
     let list = products.filter(
       (p) =>
@@ -181,7 +151,7 @@ setProducts(mapped);
   }, [products, active, query, sort]);
 
   const handleAdd = (p) => {
-    // wire to cart as you like
+    // اربطه بستيت الكارت لاحقًا (zustand تاني)
     console.log("ADD TO CART:", p.id);
   };
 
@@ -212,10 +182,18 @@ setProducts(mapped);
             <option value="price-desc">Price: High → Low</option>
             <option value="alpha">Alphabetical</option>
           </select>
+
+          {/* Refresh يتجاهل الكاش */}
+          {/* <button
+            onClick={() => getMyRecipes(true)}
+            className="rounded-md px-3 py-2 text-sm bg-black text-white"
+          >
+            تحديث الآن
+          </button> */}
         </div>
       </div>
 
-      {/* Categories (tabs) */}
+      {/* Categories */}
       <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
         {CATEGORIES.map((c) => (
           <button
@@ -232,7 +210,7 @@ setProducts(mapped);
         ))}
       </div>
 
-      {/* Tag filter demo (visual only) */}
+      {/* Tags (شكل فقط) */}
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
         {["Hot", "Sale", "New"].map((t) => (
           <span
@@ -264,6 +242,9 @@ setProducts(mapped);
     </section>
   );
 }
+
+
+
 
 
 

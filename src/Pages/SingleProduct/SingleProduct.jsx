@@ -1,47 +1,38 @@
-import React, { useEffect, useMemo, useState } from "react";
+// src/Pages/SingleProduct/SingleProduct.jsx
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import useDataStore from "../../Stores/useDataStore";
 
 export default function SingleProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [recipe, setRecipe] = useState(null);
+  // 🔌 سحب الداتا من الستور
+  const recipe = useDataStore((s) => s.singleById[id]);
+  const loadingSingleId = useDataStore((s) => s.loadingSingleId);
+  const error = useDataStore((s) => s.error);
+  const getSingleRecipe = useDataStore((s) => s.getSingleRecipe);
+
+  // UI state محلي زي ما هو
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState(null);
 
+  // منع تكرار الفetch في Strict Mode
+  const fetchedRef = useRef(false);
   useEffect(() => {
-    let isMounted = true;
-    (async () => {
-      try {
-        setLoading(true);
-        setErr(null);
-        const { data } = await axios.get(`https://dummyjson.com/recipes/${id}`);
-        if (!isMounted) return;
-        setRecipe(data);
-        setActiveImg(0);
-      } catch (e) {
-        console.error(e);
-        setErr("Failed to load recipe.");
-      } finally {
-        setLoading(false);
-      }
-    })();
-    return () => {
-      isMounted = false;
-    };
-  }, [id]);
+    if (!id) return;
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    getSingleRecipe(id); // لو عايز تتجاهل الكاش: getSingleRecipe(id, true)
+  }, [id, getSingleRecipe]);
 
-  // Recipes have a single image (string). Build a 1-item gallery.
-  const gallery = useMemo(() => {
-    if (!recipe) return [];
-    return [recipe.image || ""];
-  }, [recipe]);
+  // جاليري (dummyjson بيرجع صورة واحدة)
+  const gallery = useMemo(() => (recipe ? [recipe.image || ""] : []), [recipe]);
 
   const inc = () => setQty((q) => Math.min(q + 1, 99));
   const dec = () => setQty((q) => Math.max(q - 1, 1));
+
+  const isLoadingThis = loadingSingleId === id && !recipe;
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -52,10 +43,21 @@ export default function SingleProduct() {
         ← Back
       </button>
 
-      {loading && <div className="rounded-xl bg-white p-6 ring-1 ring-gray-100">Loading…</div>}
-      {err && <div className="rounded-xl bg-white p-6 ring-1 ring-red-200 text-red-700">{err}</div>}
+      {isLoadingThis && (
+        <div className="rounded-xl bg-white p-6 ring-1 ring-gray-100">Loading…</div>
+      )}
 
-      {!loading && !err && recipe && (
+      {!isLoadingThis && error && !recipe && (
+        <div className="rounded-xl bg-white p-6 ring-1 ring-red-200 text-red-700">
+          {error}
+        </div>
+      )}
+
+      {!isLoadingThis && !error && !recipe && (
+        <div className="rounded-xl bg-white p-6 ring-1 ring-gray-100">Not found</div>
+      )}
+
+      {!isLoadingThis && recipe && (
         <>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {/* Gallery */}
@@ -95,7 +97,6 @@ export default function SingleProduct() {
                 {recipe.name}
               </h1>
 
-              {/* If you want a short blurb, build one from fields available */}
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {recipe.cuisine ? `${recipe.cuisine} cuisine` : "Recipe"} ·{" "}
                 {Array.isArray(recipe.mealType) && recipe.mealType.length > 0
@@ -117,7 +118,10 @@ export default function SingleProduct() {
                 <li className="flex">
                   <span className="w-28 shrink-0 text-gray-500">Meal Type</span>
                   <span className="text-gray-700">
-                    : {Array.isArray(recipe.mealType) && recipe.mealType.length ? recipe.mealType.join(", ") : "—"}
+                    :{" "}
+                    {Array.isArray(recipe.mealType) && recipe.mealType.length
+                      ? recipe.mealType.join(", ")
+                      : "—"}
                   </span>
                 </li>
                 <li className="flex">
@@ -136,17 +140,19 @@ export default function SingleProduct() {
                 </li>
               </ul>
 
-              {/* Keep your qty/add button UI if you like, but it's a recipe.
-                  You could reinterpret this as "Add ingredients to cart". */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <div className="flex items-center rounded-lg border border-gray-300">
-                  <button onClick={dec} className="px-3 py-2 text-lg leading-none">-</button>
+                  <button onClick={inc} className="px-3 py-2 text-lg leading-none">
+                    +
+                  </button>
                   <input
                     readOnly
                     value={qty}
                     className="w-12 border-x border-gray-300 py-2 text-center outline-none"
                   />
-                  <button onClick={inc} className="px-3 py-2 text-lg leading-none">+</button>
+                  <button onClick={dec} className="px-3 py-2 text-lg leading-none">
+                    -
+                  </button>
                 </div>
 
                 <button
