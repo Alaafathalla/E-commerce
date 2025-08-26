@@ -1,37 +1,31 @@
+// src/Pages/Checkout/CheckoutPage.jsx
 import React, { useMemo, useState } from "react";
 import { CreditCard, Truck, ChevronDown } from "lucide-react";
-import img1 from "../../assets/checkout/1.png";
-import img2 from "../../assets/checkout/2.png";
-// swap with your assets
-const items = [
-  {
-    id: 1,
-    title: "Dates Value Pack Pouch",
-    price: 120.25,
-    oldPrice: 138.26,
-    img:img1,
-  },
-  {
-    id: 2,
-    title: "Smoked Honey Spiced Nuts",
-    price: 120.25,
-    oldPrice: 132.26,
-    img:img2,
-  },
-];
+import { Link } from "react-router-dom";
+import useCartStore from "../../Stores/useCartStore";
 
 export default function CheckoutPage() {
+  // 🛒 اجلب عناصر السلة من الستور
+  const items = useCartStore((s) => s.items);
+
   // delivery + payment selections
   const [delivery, setDelivery] = useState("free");
   const [payment, setPayment] = useState("cod");
   const [useExistingAddress, setUseExistingAddress] = useState(true);
 
+  // 💰 الحسابات
   const subTotal = useMemo(
-    () => items.reduce((s, it) => s + it.price, 0),
-    []
+    () =>
+      (items ?? []).reduce(
+        (s, it) => s + (Number(it.price) || 0) * (Number(it.qty) || 0),
+        0
+      ),
+    [items]
   );
   const deliveryCharge = delivery === "flat" ? 5 : 0;
   const total = subTotal + deliveryCharge;
+
+  const isEmpty = !items || items.length === 0;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -43,6 +37,7 @@ export default function CheckoutPage() {
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <h3 className="font-semibold text-gray-900 dark:text-white">Summary</h3>
             </div>
+
             <div className="p-4 text-sm space-y-2 text-gray-700 dark:text-gray-300">
               <div className="flex justify-between">
                 <span>Sub-Total</span>
@@ -57,22 +52,49 @@ export default function CheckoutPage() {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              {/* Items */}
+              {/* Items — من السلة */}
               <div className="mt-4 space-y-3">
-                {items.map((it) => (
-                  <div key={it.id} className="flex gap-3">
-                    <img src={it.img} alt={it.title} className="w-16 h-16 rounded object-cover" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">
-                        {it.title}
-                      </p>
-                      <div className="text-xs mt-1">
-                        <span className="text-green-600 font-semibold">${it.price.toFixed(2)}</span>{" "}
-                        <span className="text-gray-400 line-through">${it.oldPrice.toFixed(2)}</span>
+                {isEmpty ? (
+                  <div className="text-xs text-gray-500">
+                    Your cart is empty.{" "}
+                    <Link to="/products" className="text-blue-600 hover:underline">
+                      Continue shopping
+                    </Link>
+                  </div>
+                ) : (
+                  items.map((it) => (
+                    <div key={it.id} className="flex gap-3">
+                      <div className="w-16 h-16 rounded overflow-hidden bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                        {it.image ? (
+                          <img
+                            src={it.image}
+                            alt={it.title}
+                            className="w-full h-full object-contain"
+                            onError={(e) => (e.currentTarget.style.visibility = "hidden")}
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded bg-gray-200 dark:bg-gray-700" />
+                        )}
+                      </div>
+
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">
+                          {it.title}
+                        </p>
+                        <div className="text-xs mt-1 flex items-center gap-2">
+                          <span className="text-gray-500">Qty: {it.qty}</span>
+                          <span className="text-green-600 font-semibold">
+                            ${Number(it.price).toFixed(2)}
+                          </span>
+                          <span className="text-gray-400">•</span>
+                          <span className="font-semibold text-gray-800 dark:text-gray-100">
+                            ${(Number(it.price) * Number(it.qty)).toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -158,9 +180,21 @@ export default function CheckoutPage() {
               </label>
 
               <div className="mt-2 flex items-center gap-2">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="visa" className="h-5" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="mc" className="h-5" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/PayPal_Logo_Icon_2014.svg" alt="pp" className="h-5" />
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
+                  alt="visa"
+                  className="h-5"
+                />
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg"
+                  alt="mc"
+                  className="h-5"
+                />
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/5e/PayPal_Logo_Icon_2014.svg"
+                  alt="pp"
+                  className="h-5"
+                />
               </div>
             </div>
           </div>
@@ -208,7 +242,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div className="mt-3 flex items-center gap-4">
-                  <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Login</button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                    Login
+                  </button>
                   <button className="text-sm text-gray-600 dark:text-gray-300 hover:underline">
                     Forgot Password?
                   </button>
@@ -313,7 +349,11 @@ export default function CheckoutPage() {
               )}
 
               <div className="mt-6 flex justify-end">
-                <button className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded">
+                <button
+                  className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded disabled:opacity-60"
+                  disabled={isEmpty}
+                  title={isEmpty ? "Your cart is empty" : "Place Order"}
+                >
                   Place Order
                 </button>
               </div>
@@ -325,3 +365,4 @@ export default function CheckoutPage() {
     </section>
   );
 }
+

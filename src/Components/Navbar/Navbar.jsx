@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/Components/Navbar/Navbar.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Menu as HeadlessMenu,
   MenuButton,
@@ -17,11 +18,20 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import useCartStore from "../../Stores/useCartStore";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  // 🛒 عدّاد السلة (مجموع الكميات)
+  const items = useCartStore((s) => s.items);
+  const cartCount = useMemo(
+    () => (items || []).reduce((sum, it) => sum + (Number(it.qty) || 0), 0),
+    [items]
+  );
+  const badgeText = cartCount > 99 ? "99+" : String(cartCount || "");
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("token"));
@@ -56,13 +66,13 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Desktop Links (unchanged style) */}
+        {/* Desktop Links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
           <Link to="/">Home</Link>
           <Link to="/category" className="flex items-center gap-1">Category</Link>
           <Link to="/products" className="flex items-center gap-1">Products</Link>
 
-          {/* Headless UI dropdown for Pages */}
+          {/* Pages dropdown */}
           <HeadlessMenu as="div" className="relative inline-block">
             <MenuButton className="inline-flex w-auto justify-center gap-x-1.5 px-2 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
               Pages
@@ -114,15 +124,13 @@ const Navbar = () => {
           <Link to="/category" className="block" onClick={() => setIsMobileMenuOpen(false)}>Category</Link>
           <Link to="/products" className="block" onClick={() => setIsMobileMenuOpen(false)}>Products</Link>
 
-          {/* Mobile Pages dropdown (Headless UI) */}
+          {/* Mobile Pages dropdown */}
           <HeadlessMenu as="div" className="relative inline-block">
             <MenuButton className="inline-flex w-auto justify-center gap-x-1.5 px-2 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
               Pages
               <ChevronDown aria-hidden="true" className="-mr-1 size-4 text-gray-400" />
             </MenuButton>
-            <MenuItems
-              className="absolute left-0 mt-1 w-40 origin-top-left rounded-md bg-gray-800 border border-gray-700 shadow-lg z-50"
-            >
+            <MenuItems className="absolute left-0 mt-1 w-40 origin-top-left rounded-md bg-gray-800 border border-gray-700 shadow-lg z-50">
               <div className="py-1">
                 <MenuItem>
                   <Link
@@ -156,12 +164,21 @@ const Navbar = () => {
               <button onClick={logout} className="block text-left text-red-600 w-full">Logout</button>
             )}
             <Link to="/wishlist" className="block" onClick={() => setIsMobileMenuOpen(false)}>Wishlist</Link>
-            <Link to="/cart" className="block" onClick={() => setIsMobileMenuOpen(false)}>Cart</Link>
+
+            {/* Cart (mobile) مع عدّاد */}
+            <Link
+              to="/cart"
+              className="block"
+              onClick={() => setIsMobileMenuOpen(false)}
+              aria-label={`Cart${cartCount ? ` (${cartCount})` : ""}`}
+            >
+              Cart{cartCount > 0 ? ` (${badgeText})` : ""}
+            </Link>
           </div>
         </div>
       )}
 
-      {/* Desktop Search + Actions (unchanged) */}
+      {/* Desktop Search + Actions */}
       <div className="px-4 pb-3 lg:px-8 hidden lg:flex items-center justify-between gap-6">
         {/* Search */}
         <div className="flex w-full max-w-4xl border border-gray-300 dark:border-gray-600 rounded overflow-hidden bg-white dark:bg-gray-800">
@@ -193,13 +210,33 @@ const Navbar = () => {
               <span>Account</span>
             </Link>
           )}
+
           <Link to="/wishlist" className="flex items-center gap-1 hover:text-red-500">
             <Heart size={18} />
             <span>Wishlist</span>
           </Link>
-          <Link to="/cart" className="flex items-center gap-1 hover:text-red-500">
+
+          {/* Cart (desktop) مع بادج */}
+          <Link
+            to="/cart"
+            className="relative flex items-center gap-1 hover:text-red-500"
+            aria-label={`Cart${cartCount ? ` (${cartCount})` : ""}`}
+          >
             <ShoppingCart size={18} />
             <span>Cart</span>
+
+            {cartCount > 0 && (
+              <span
+                className="
+                  absolute -top-2 -right-2
+                  h-5 min-w-[1.25rem] px-1
+                  rounded-full text-[10px] leading-5 text-white
+                  bg-red-500 text-center font-semibold shadow
+                "
+              >
+                {badgeText}
+              </span>
+            )}
           </Link>
         </div>
       </div>
@@ -208,6 +245,7 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
 
 

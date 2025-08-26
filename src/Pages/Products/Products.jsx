@@ -1,4 +1,4 @@
-// src/Pages/Products/Products.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, Tag } from "lucide-react";
@@ -50,7 +50,7 @@ function ProductCard({ p, onAdd }) {
       </div>
 
       <p className="text-xs text-gray-500 dark:text-gray-400">{p.category}</p>
-      <h3 className="mt-1 text-sm font-semibold text-gray-800 dark:text-white line-clamp-2">
+      <h3 className="mt-1 text-sm font-semibold text-gray-800 dark:text-black line-clamp-2">
         {p.title}
       </h3>
 
@@ -88,7 +88,7 @@ function ProductCard({ p, onAdd }) {
 
         <button
           onClick={() => navigate(`/products/${p.id}`)}
-          className="flex-1 inline-flex items-center justify-center gap-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md px-3 py-1.5"
+          className="flex-1 inline-flex items-center justify-center gap-1 text-sm bg-blue-500 hover:bg-blue-600 text-white  rounded-md px-3 py-1.5"
         >
           Details
         </button>

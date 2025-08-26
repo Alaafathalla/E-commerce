@@ -1,7 +1,7 @@
 // src/Pages/Cart/CartPage.jsx
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2, ChevronLeft } from "lucide-react";
+import { Minus, Plus, Trash2, ChevronLeft, CheckCircle2 } from "lucide-react";
 import useCartStore from "../../Stores/useCartStore"; // متجر السلة الوحيد
 
 export default function CartPage() {
@@ -13,13 +13,7 @@ export default function CartPage() {
   const removeItem = useCartStore((s) => s.removeItem);
 
   // -------- Server API (اختياري) ----------
-  const pushLocalAsCart = useCartStore((s) => s.pushLocalAsCart);
-  const loading   = useCartStore((s) => s.loading);
   const apiError  = useCartStore((s) => s.error);
-  const activeCart= useCartStore((s) => s.activeCart);
-
-  // استبدلها بمعرّف المستخدم الحقيقي إن وجد
-  const userId = 5;
 
   const updateQty = (id, delta) => (delta > 0 ? inc(id) : dec(id));
 
@@ -37,10 +31,60 @@ export default function CartPage() {
 
   const isEmpty = !items || items.length === 0;
 
+  // ---------- إشعار عند الإضافة ----------
+  const totalQty = useMemo(
+    () => (items ?? []).reduce((sum, it) => sum + (Number(it.qty) || 0), 0),
+    [items]
+  );
+  const prevQtyRef = useRef(totalQty);
+  const [toast, setToast] = useState({ show: false, msg: "" });
+  const hideTimerRef = useRef(null);
+
+  useEffect(() => {
+    const prev = prevQtyRef.current;
+    if (totalQty > prev) {
+      // حاول نخمن آخر عنصر زادت كميته لعرض اسم المنتج (اختياري)
+      let lastIncreasedTitle = "";
+      if (Array.isArray(items) && items.length) {
+        // ابحث عن عنصر له qty >= 1 وقد يكون جديد
+        const maybeNew = items.find((it) => Number(it.qty) === 1 && prev === 0);
+        if (maybeNew?.title) lastIncreasedTitle = maybeNew.title;
+      }
+      const msg = lastIncreasedTitle
+        ? `Added "${lastIncreasedTitle}" to cart`
+        : `Item added to cart`;
+
+      setToast({ show: true, msg });
+
+      // أخفِ الإشعار بعد 2.5 ثانية
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = window.setTimeout(() => {
+        setToast((t) => ({ ...t, show: false }));
+      }, 2500);
+    }
+    prevQtyRef.current = totalQty;
+    return () => window.clearTimeout(hideTimerRef.current);
+  }, [totalQty, items]);
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Toast */}
+      {toast.show && (
+        <div
+          className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 shadow-lg"
+          role="status"
+          aria-live="polite"
+        >
+          <CheckCircle2 size={18} />
+          <span className="text-sm">{toast.msg}</span>
+        </div>
+      )}
+
       <div className="mb-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline"
+        >
           <ChevronLeft size={16} /> Continue Shopping
         </Link>
       </div>
@@ -52,7 +96,10 @@ export default function CartPage() {
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Browse products and add what you like.
           </p>
-          <Link to="/" className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md">
+          <Link
+            to="/"
+            className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md"
+          >
             Start Shopping
           </Link>
         </div>
@@ -147,7 +194,11 @@ export default function CartPage() {
                 {/* Mobile card */}
                 <div className="md:hidden flex items-start gap-3">
                   {it.image ? (
-                    <img src={it.image} alt={it.title} className="w-16 h-16 object-contain rounded bg-white" />
+                    <img
+                      src={it.image}
+                      alt={it.title}
+                      className="w-16 h-16 object-contain rounded bg-white"
+                    />
                   ) : (
                     <div className="w-16 h-16 rounded bg-gray-100 dark:bg-gray-800" />
                   )}
@@ -206,16 +257,6 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                {/* مزامنة السلة المحلية مع DummyJSON (اختياري) */}
-                <button
-                  onClick={() => pushLocalAsCart(userId)}
-                  disabled={loading || isEmpty}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-4 py-2 rounded-md font-medium"
-                  title="POST /carts/add"
-                >
-                  {loading ? "Syncing…" : "Sync to Server"}
-                </button>
-
                 <Link to="/checkout">
                   <button
                     disabled={isEmpty}
@@ -233,14 +274,6 @@ export default function CartPage() {
               )}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* (اختياري) إظهار استجابة السيرفر لآخر عملية */}
-      {activeCart && !isEmpty && (
-        <div className="mt-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4">
-          <div className="text-sm font-semibold mb-1">Server response (activeCart)</div>
-          <pre className="text-xs overflow-auto">{JSON.stringify(activeCart, null, 2)}</pre>
         </div>
       )}
     </section>

@@ -1,6 +1,7 @@
 // src/Pages/SingleProduct/SingleProduct.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { CheckCircle2 } from "lucide-react";
 import useDataStore from "../../Stores/useDataStore";
 import useCartStore from "../../Stores/useCartStore";
 
@@ -8,15 +9,15 @@ export default function SingleProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 🔌 سحب بيانات المنتج من الستور الخاص بالـ recipes
+  // 🔌 بيانات المنتج
   const recipe = useDataStore((s) => s.singleById[id]);
   const loadingSingleId = useDataStore((s) => s.loadingSingleId);
   const error = useDataStore((s) => s.error);
   const getSingleRecipe = useDataStore((s) => s.getSingleRecipe);
 
-  // 🛒 سلة المشتريات
-  const addItem    = useCartStore((s) => s.addItem);     // إضافة محلية (فورية)
-  const createCart = useCartStore((s) => s.createCart);  // (اختياري) مزامنة API
+  // 🛒 السلة
+  const addItem    = useCartStore((s) => s.addItem);
+  const createCart = useCartStore((s) => s.createCart); // (اختياري)
   const apiLoading = useCartStore((s) => s.loading);
   const apiError   = useCartStore((s) => s.error);
 
@@ -24,16 +25,20 @@ export default function SingleProduct() {
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
 
-  // منع تكرار الـ fetch في Strict Mode
+  // Toast state
+  const [toast, setToast] = useState({ show: false, msg: "" });
+  const hideTimerRef = useRef(null);
+
+  // منع تكرار fetch
   const fetchedRef = useRef(false);
   useEffect(() => {
     if (!id) return;
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    getSingleRecipe(id); // لو تريد تجاهل الكاش: getSingleRecipe(id, true)
+    getSingleRecipe(id);
   }, [id, getSingleRecipe]);
 
-  // جاليري (DummyJSON يعيد صورة واحدة غالبًا)
+  // جاليري
   const gallery = useMemo(() => (recipe ? [recipe.image || ""] : []), [recipe]);
 
   const inc = () => setQty((q) => Math.min(q + 1, 99));
@@ -41,38 +46,68 @@ export default function SingleProduct() {
 
   const isLoadingThis = loadingSingleId === id && !recipe;
 
-  // 🛒 إضافة للسلة المحلية + (اختياري) مزامنة API
+  // إظهار توست
+  const showToast = (message) => {
+    window.clearTimeout(hideTimerRef.current);
+    setToast({ show: true, msg: message });
+    hideTimerRef.current = window.setTimeout(() => {
+      setToast((t) => ({ ...t, show: false }));
+    }, 2500);
+  };
+
+  useEffect(() => {
+    return () => window.clearTimeout(hideTimerRef.current);
+  }, []);
+
+  // إضافة للسلة + (اختياري) مزامنة API
   const handleAddToCart = async () => {
     if (!recipe) return;
 
-    // 1) أضف محليًا فورًا — نفس طريقة Products
+    // 1) محليًا
     addItem(
       {
         id: Number(id),
         title: recipe.name,
-        price: Number(recipe.price ?? 0) || 0, // عدّل مصدر السعر لو متوفر عندك
+        price: Number(recipe.price ?? 0) || 0,
         image: recipe.image,
       },
       qty
     );
 
-    // 2) (اختياري) مزامنة مع DummyJSON (POST /carts/add)
+    // إشعار نجاح
+    showToast(`Added "${recipe.name}" x${qty} to cart`);
+
+    // 2) (اختياري) مزامنة DummyJSON
     try {
       await createCart({
-        userId: 1, // ثابت للاختبار — بدّله بالمستخدم الحقيقي إذا عندك Auth
+        userId: 1, // بدّله لاحقًا بمستخدمك الحقيقي
         products: [{ id: Number(id), quantity: qty }],
       });
     } catch (e) {
-      // لا نكسر الـ UI لو فشل الاستدعاء المحاكي
+      // لا نكسر الواجهة عند فشل المزامنة
+      // يمكن عرض إشعار مختلف لو حاب
+      // showToast("Could not sync with server");
       console.warn("API sync failed:", e?.message || e);
     }
 
-    // 3) توجيه لسلة المشتريات
+    // 3) (اختياري) التنقّل للكارت
     // navigate("/cart");
   };
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Toast */}
+      {toast.show && (
+        <div
+          className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 shadow-lg"
+          role="status"
+          aria-live="polite"
+        >
+          <CheckCircle2 size={18} />
+          <span className="text-sm">{toast.msg}</span>
+        </div>
+      )}
+
       <button
         onClick={() => navigate(-1)}
         className="mb-4 rounded-md border px-3 py-1.5 text-sm text-gray-700 dark:text-gray-200"
@@ -189,7 +224,7 @@ export default function SingleProduct() {
                 </div>
 
                 <button
-                  disabled={apiLoading} // فقط يعطّل لو في مزامنة جارية
+                  disabled={apiLoading}
                   className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
                   onClick={handleAddToCart}
                 >
@@ -232,6 +267,7 @@ export default function SingleProduct() {
     </section>
   );
 }
+
 
 
 
