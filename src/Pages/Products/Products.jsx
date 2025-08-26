@@ -1,7 +1,7 @@
-
+// src/Pages/Products/Products.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, Tag } from "lucide-react";
+import { Star, Tag, CheckCircle2 } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import useDataStore from "../../Stores/useDataStore";
 import useCartStore from "../../Stores/useCartStore";
@@ -50,7 +50,7 @@ function ProductCard({ p, onAdd }) {
       </div>
 
       <p className="text-xs text-gray-500 dark:text-gray-400">{p.category}</p>
-      <h3 className="mt-1 text-sm font-semibold text-gray-800 dark:text-black line-clamp-2">
+      <h3 className="mt-1 text-sm font-semibold text-gray-800 dark:text-white line-clamp-2">
         {p.title}
       </h3>
 
@@ -101,6 +101,18 @@ export default function ProductsPage() {
   const [active, setActive] = useState("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("popular");
+
+  // توست (إشعار)
+  const [toast, setToast] = useState({ show: false, msg: "" });
+  const hideTimerRef = useRef(null);
+  const showToast = (message) => {
+    window.clearTimeout(hideTimerRef.current);
+    setToast({ show: true, msg: message });
+    hideTimerRef.current = window.setTimeout(() => {
+      setToast((t) => ({ ...t, show: false }));
+    }, 2500);
+  };
+  useEffect(() => () => window.clearTimeout(hideTimerRef.current), []);
 
   // جِب الداتا من الستور بتاع الـ recipes
   const { recipes, loading, error } = useDataStore(
@@ -153,7 +165,7 @@ export default function ProductsPage() {
     return list;
   }, [products, active, query, sort]);
 
-  // ✅ الهاندلر الصحيح للإضافة للكارت
+  // ✅ الهاندلر الصحيح للإضافة للكارت + إشعار
   const handleAdd = (p) => {
     addItem(
       {
@@ -164,10 +176,23 @@ export default function ProductsPage() {
       },
       1
     );
+    showToast(`Added "${p.title ?? p.name}" to cart`);
   };
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Toast */}
+      {toast.show && (
+        <div
+          className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 shadow-lg"
+          role="status"
+          aria-live="polite"
+        >
+          <CheckCircle2 size={18} />
+          <span className="text-sm">{toast.msg}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
@@ -245,6 +270,7 @@ export default function ProductsPage() {
     </section>
   );
 }
+
 
 
 
