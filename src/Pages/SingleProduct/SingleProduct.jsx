@@ -2,37 +2,74 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useDataStore from "../../Stores/useDataStore";
+import useCartStore from "../../Stores/useCartStore";
 
 export default function SingleProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 🔌 سحب الداتا من الستور
+  // 🔌 سحب بيانات المنتج من الستور الخاص بالـ recipes
   const recipe = useDataStore((s) => s.singleById[id]);
   const loadingSingleId = useDataStore((s) => s.loadingSingleId);
   const error = useDataStore((s) => s.error);
   const getSingleRecipe = useDataStore((s) => s.getSingleRecipe);
 
-  // UI state محلي زي ما هو
+  // 🛒 سلة المشتريات
+  const addItem    = useCartStore((s) => s.addItem);     // إضافة محلية (فورية)
+  const createCart = useCartStore((s) => s.createCart);  // (اختياري) مزامنة API
+  const apiLoading = useCartStore((s) => s.loading);
+  const apiError   = useCartStore((s) => s.error);
+
+  // UI state
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
 
-  // منع تكرار الفetch في Strict Mode
+  // منع تكرار الـ fetch في Strict Mode
   const fetchedRef = useRef(false);
   useEffect(() => {
     if (!id) return;
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    getSingleRecipe(id); // لو عايز تتجاهل الكاش: getSingleRecipe(id, true)
+    getSingleRecipe(id); // لو تريد تجاهل الكاش: getSingleRecipe(id, true)
   }, [id, getSingleRecipe]);
 
-  // جاليري (dummyjson بيرجع صورة واحدة)
+  // جاليري (DummyJSON يعيد صورة واحدة غالبًا)
   const gallery = useMemo(() => (recipe ? [recipe.image || ""] : []), [recipe]);
 
   const inc = () => setQty((q) => Math.min(q + 1, 99));
   const dec = () => setQty((q) => Math.max(q - 1, 1));
 
   const isLoadingThis = loadingSingleId === id && !recipe;
+
+  // 🛒 إضافة للسلة المحلية + (اختياري) مزامنة API
+  const handleAddToCart = async () => {
+    if (!recipe) return;
+
+    // 1) أضف محليًا فورًا — نفس طريقة Products
+    addItem(
+      {
+        id: Number(id),
+        title: recipe.name,
+        price: Number(recipe.price ?? 0) || 0, // عدّل مصدر السعر لو متوفر عندك
+        image: recipe.image,
+      },
+      qty
+    );
+
+    // 2) (اختياري) مزامنة مع DummyJSON (POST /carts/add)
+    try {
+      await createCart({
+        userId: 1, // ثابت للاختبار — بدّله بالمستخدم الحقيقي إذا عندك Auth
+        products: [{ id: Number(id), quantity: qty }],
+      });
+    } catch (e) {
+      // لا نكسر الـ UI لو فشل الاستدعاء المحاكي
+      console.warn("API sync failed:", e?.message || e);
+    }
+
+    // 3) توجيه لسلة المشتريات
+    // navigate("/cart");
+  };
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -44,17 +81,17 @@ export default function SingleProduct() {
       </button>
 
       {isLoadingThis && (
-        <div className="rounded-xl bg-white p-6 ring-1 ring-gray-100">Loading…</div>
+        <div className="rounded-2xl bg-white p-6 ring-1 ring-gray-100">Loading…</div>
       )}
 
       {!isLoadingThis && error && !recipe && (
-        <div className="rounded-xl bg-white p-6 ring-1 ring-red-200 text-red-700">
+        <div className="rounded-2xl bg-white p-6 ring-1 ring-red-200 text-red-700">
           {error}
         </div>
       )}
 
       {!isLoadingThis && !error && !recipe && (
-        <div className="rounded-xl bg-white p-6 ring-1 ring-gray-100">Not found</div>
+        <div className="rounded-2xl bg-white p-6 ring-1 ring-gray-100">Not found</div>
       )}
 
       {!isLoadingThis && recipe && (
@@ -142,26 +179,29 @@ export default function SingleProduct() {
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <div className="flex items-center rounded-lg border border-gray-300">
-                  <button onClick={inc} className="px-3 py-2 text-lg leading-none">
-                    +
-                  </button>
+                  <button onClick={inc} className="px-3 py-2 text-lg leading-none">+</button>
                   <input
                     readOnly
                     value={qty}
                     className="w-12 border-x border-gray-300 py-2 text-center outline-none"
                   />
-                  <button onClick={dec} className="px-3 py-2 text-lg leading-none">
-                    -
-                  </button>
+                  <button onClick={dec} className="px-3 py-2 text-lg leading-none">-</button>
                 </div>
 
                 <button
-                  className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-                  onClick={() => navigate("/cart")}
+                  disabled={apiLoading} // فقط يعطّل لو في مزامنة جارية
+                  className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+                  onClick={handleAddToCart}
                 >
-                  Add To Cart
+                  {apiLoading ? "Adding…" : "Add To Cart"}
                 </button>
               </div>
+
+              {apiError && (
+                <p className="text-sm text-red-600 pt-1">
+                  {apiError}
+                </p>
+              )}
             </div>
           </div>
 
@@ -192,6 +232,7 @@ export default function SingleProduct() {
     </section>
   );
 }
+
 
 
 

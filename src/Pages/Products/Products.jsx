@@ -79,7 +79,7 @@ function ProductCard({ p, onAdd }) {
         <button
           onClick={() => {
             onAdd?.(p);
-            navigate("/cart");
+            // navigate("/cart");
           }}
           className="flex-1 inline-flex items-center justify-center gap-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1.5"
         >
