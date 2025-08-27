@@ -58,7 +58,7 @@ const Navbar = () => {
           </button>
 
           <div className="flex items-center gap-2">
-            <img src={logo} alt="logo" className="w-14 h-14 rounded-full" />
+            <img src={logo} alt="logo" className="w-28 h-28 rounded-full" />
             <div className="leading-tight">
               <p className="text-lg font-bold text-gray-800 dark:text-white">
                 Foodzy
