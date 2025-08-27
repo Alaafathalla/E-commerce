@@ -16,10 +16,10 @@ export default function SingleProduct() {
   const getSingleRecipe = useDataStore((s) => s.getSingleRecipe);
 
   // 🛒 السلة
-  const addItem    = useCartStore((s) => s.addItem);
+  const addItem = useCartStore((s) => s.addItem);
   const createCart = useCartStore((s) => s.createCart); // (اختياري)
   const apiLoading = useCartStore((s) => s.loading);
-  const apiError   = useCartStore((s) => s.error);
+  const apiError = useCartStore((s) => s.error);
 
   // UI state
   const [activeImg, setActiveImg] = useState(0);
@@ -84,9 +84,6 @@ export default function SingleProduct() {
         products: [{ id: Number(id), quantity: qty }],
       });
     } catch (e) {
-      // لا نكسر الواجهة عند فشل المزامنة
-      // يمكن عرض إشعار مختلف لو حاب
-      // showToast("Could not sync with server");
       console.warn("API sync failed:", e?.message || e);
     }
 
@@ -95,7 +92,7 @@ export default function SingleProduct() {
   };
 
   return (
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 dark:bg-gray-900">
       {/* Toast */}
       {toast.show && (
         <div
@@ -110,23 +107,27 @@ export default function SingleProduct() {
 
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 rounded-md border px-3 py-1.5 text-sm text-gray-700 dark:text-gray-200"
+        className="mb-4 rounded-md border px-3 py-1.5 text-sm text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
       >
         ← Back
       </button>
 
       {isLoadingThis && (
-        <div className="rounded-2xl bg-white p-6 ring-1 ring-gray-100">Loading…</div>
+        <div className="rounded-2xl bg-white p-6 ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700 dark:text-gray-200">
+          Loading…
+        </div>
       )}
 
       {!isLoadingThis && error && !recipe && (
-        <div className="rounded-2xl bg-white p-6 ring-1 ring-red-200 text-red-700">
+        <div className="rounded-2xl bg-white p-6 ring-1 ring-red-200 text-red-700 dark:bg-gray-800 dark:ring-red-700/40 dark:text-red-300">
           {error}
         </div>
       )}
 
       {!isLoadingThis && !error && !recipe && (
-        <div className="rounded-2xl bg-white p-6 ring-1 ring-gray-100">Not found</div>
+        <div className="rounded-2xl bg-white p-6 ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700 dark:text-gray-200">
+          Not found
+        </div>
       )}
 
       {!isLoadingThis && recipe && (
@@ -134,7 +135,7 @@ export default function SingleProduct() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {/* Gallery */}
             <div>
-              <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+              <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700">
                 <img
                   src={gallery[activeImg]}
                   alt={recipe.name}
@@ -149,7 +150,9 @@ export default function SingleProduct() {
                     key={i}
                     onClick={() => setActiveImg(i)}
                     className={`h-20 w-24 shrink-0 rounded-xl border p-1 transition ${
-                      activeImg === i ? "border-blue-500 ring-2 ring-blue-200" : "border-gray-200"
+                      activeImg === i
+                        ? "border-blue-500 ring-2 ring-blue-200 dark:ring-blue-400/30"
+                        : "border-gray-200 dark:border-gray-700"
                     }`}
                   >
                     <img
@@ -165,9 +168,7 @@ export default function SingleProduct() {
 
             {/* Details */}
             <div className="space-y-3">
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {recipe.name}
-              </h1>
+              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{recipe.name}</h1>
 
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {recipe.cuisine ? `${recipe.cuisine} cuisine` : "Recipe"} ·{" "}
@@ -179,48 +180,43 @@ export default function SingleProduct() {
               <div className="flex items-center gap-2 pt-1 text-amber-500">
                 {"★".repeat(Math.round(recipe.rating || 0))}
                 {"☆".repeat(5 - Math.round(recipe.rating || 0))}
-                <span className="text-xs text-gray-500">({recipe.rating ?? 0} / 5)</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">({recipe.rating ?? 0} / 5)</span>
               </div>
 
               <ul className="mt-2 grid grid-cols-1 gap-1 text-sm">
                 <li className="flex">
-                  <span className="w-28 shrink-0 text-gray-500">Cuisine</span>
-                  <span className="text-gray-700">: {recipe.cuisine || "—"}</span>
+                  <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400">Cuisine</span>
+                  <span className="text-gray-700 dark:text-gray-300">: {recipe.cuisine || "—"}</span>
                 </li>
                 <li className="flex">
-                  <span className="w-28 shrink-0 text-gray-500">Meal Type</span>
-                  <span className="text-gray-700">
-                    :{" "}
-                    {Array.isArray(recipe.mealType) && recipe.mealType.length
-                      ? recipe.mealType.join(", ")
-                      : "—"}
+                  <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400">Meal Type</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    : {Array.isArray(recipe.mealType) && recipe.mealType.length ? recipe.mealType.join(", ") : "—"}
                   </span>
                 </li>
                 <li className="flex">
-                  <span className="w-28 shrink-0 text-gray-500">Servings</span>
-                  <span className="text-gray-700">: {recipe.servings ?? "—"}</span>
+                  <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400">Servings</span>
+                  <span className="text-gray-700 dark:text-gray-300">: {recipe.servings ?? "—"}</span>
                 </li>
                 <li className="flex">
-                  <span className="w-28 shrink-0 text-gray-500">Prep/Cook</span>
-                  <span className="text-gray-700">
-                    : {recipe.prepTimeMinutes ?? "—"} / {recipe.cookTimeMinutes ?? "—"} mins
-                  </span>
+                  <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400">Prep/Cook</span>
+                  <span className="text-gray-700 dark:text-gray-300">: {recipe.prepTimeMinutes ?? "—"} / {recipe.cookTimeMinutes ?? "—"} mins</span>
                 </li>
                 <li className="flex">
-                  <span className="w-28 shrink-0 text-gray-500">Calories</span>
-                  <span className="text-gray-700">: {recipe.caloriesPerServing ?? "—"}</span>
+                  <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400">Calories</span>
+                  <span className="text-gray-700 dark:text-gray-300">: {recipe.caloriesPerServing ?? "—"}</span>
                 </li>
               </ul>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <div className="flex items-center rounded-lg border border-gray-300">
-                  <button onClick={inc} className="px-3 py-2 text-lg leading-none">+</button>
+                <div className="flex items-center rounded-lg border border-gray-300 dark:border-gray-600">
+                  <button className="px-3 py-2 text-lg leading-none text-gray-700 dark:text-gray-200" onClick={inc}>+</button>
                   <input
                     readOnly
                     value={qty}
-                    className="w-12 border-x border-gray-300 py-2 text-center outline-none"
+                    className="w-12 border-x border-gray-300 py-2 text-center outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                   />
-                  <button onClick={dec} className="px-3 py-2 text-lg leading-none">-</button>
+                  <button className="px-3 py-2 text-lg leading-none text-gray-700 dark:text-gray-200" onClick={dec}>-</button>
                 </div>
 
                 <button
@@ -233,17 +229,15 @@ export default function SingleProduct() {
               </div>
 
               {apiError && (
-                <p className="text-sm text-red-600 pt-1">
-                  {apiError}
-                </p>
+                <p className="text-sm text-red-600 pt-1 dark:text-red-400">{apiError}</p>
               )}
             </div>
           </div>
 
           {/* Extra info */}
-          <div className="mt-8 rounded-2xl bg-white p-4 ring-1 ring-gray-100">
-            <h3 className="text-base font-semibold mb-2">Ingredients</h3>
-            <ul className="list-disc pl-5 text-sm text-gray-700">
+          <div className="mt-8 rounded-2xl bg-white p-4 ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700">
+            <h3 className="text-base font-semibold mb-2 text-gray-600 dark:text-gray-100">Ingredients</h3>
+            <ul className="list-disc pl-5 text-sm text-gray-300 dark:text-gray-300">
               {Array.isArray(recipe.ingredients) && recipe.ingredients.length ? (
                 recipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)
               ) : (
@@ -252,9 +246,9 @@ export default function SingleProduct() {
             </ul>
           </div>
 
-          <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-gray-100">
-            <h3 className="text-base font-semibold mb-2">Instructions</h3>
-            <ol className="list-decimal pl-5 text-sm text-gray-700 space-y-1">
+          <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700">
+            <h3 className="text-base font-semibold mb-2 text-gray-600 dark:text-gray-100">Instructions</h3>
+            <ol className="list-decimal pl-5 text-sm text-gray-300 dark:text-gray-300 space-y-1">
               {Array.isArray(recipe.instructions) && recipe.instructions.length ? (
                 recipe.instructions.map((step, i) => <li key={i}>{step}</li>)
               ) : (
@@ -267,6 +261,7 @@ export default function SingleProduct() {
     </section>
   );
 }
+
 
 
 

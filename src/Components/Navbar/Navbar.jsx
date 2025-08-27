@@ -60,8 +60,12 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             <img src={logo} alt="logo" className="w-14 h-14 rounded-full" />
             <div className="leading-tight">
-              <p className="text-lg font-bold text-gray-800 dark:text-white">Foodzy</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">A Treasure of Tastes</p>
+              <p className="text-lg font-bold text-gray-800 dark:text-white">
+                Foodzy
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                A Treasure of Tastes
+              </p>
             </div>
           </div>
         </div>
@@ -69,11 +73,20 @@ const Navbar = () => {
         {/* Desktop Links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
           <Link to="/">Home</Link>
-          <Link to="/category" className="flex items-center gap-1">Category</Link>
-          <Link to="/products" className="flex items-center gap-1">Products</Link>
-
+          <Link to="/category" className="flex items-center gap-1">
+            Category
+          </Link>
+          <Link to="/products" className="flex items-center gap-1">
+            Products
+          </Link>
+          <Link to="/faq" className="flex items-center gap-1">
+            FAQ
+          </Link>
+          <Link to="/about" className="flex items-center gap-1">
+            About
+          </Link>
           {/* Pages dropdown */}
-          <HeadlessMenu as="div" className="relative inline-block">
+          {/* <HeadlessMenu as="div" className="relative inline-block">
             <MenuButton className="inline-flex w-auto justify-center gap-x-1.5 px-2 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
               Pages
               <ChevronDown aria-hidden="true" className="-mr-1 size-4 text-gray-400" />
@@ -104,10 +117,9 @@ const Navbar = () => {
                 </MenuItem>
               </div>
             </MenuItems>
-          </HeadlessMenu>
+          </HeadlessMenu> */}
 
           <Link to="/blog">Blog</Link>
-          <Link to="#" className="flex items-center gap-1">Elements</Link>
         </nav>
 
         {/* Phone */}
@@ -120,15 +132,49 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden px-4 py-3 space-y-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 text-sm font-medium max-h-[70vh] overflow-y-auto">
-          <Link to="/" className="block" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-          <Link to="/category" className="block" onClick={() => setIsMobileMenuOpen(false)}>Category</Link>
-          <Link to="/products" className="block" onClick={() => setIsMobileMenuOpen(false)}>Products</Link>
-
+          <Link
+            to="/"
+            className="block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/category"
+            className="block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Category
+          </Link>
+          <Link
+            to="/products"
+            className="block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Products
+          </Link>
+          <Link
+            to="/faq"
+            className="block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            FAQ
+          </Link>
+          <Link
+            to="/about"
+            className="block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            About
+          </Link>
           {/* Mobile Pages dropdown */}
           <HeadlessMenu as="div" className="relative inline-block">
             <MenuButton className="inline-flex w-auto justify-center gap-x-1.5 px-2 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
               Pages
-              <ChevronDown aria-hidden="true" className="-mr-1 size-4 text-gray-400" />
+              <ChevronDown
+                aria-hidden="true"
+                className="-mr-1 size-4 text-gray-400"
+              />
             </MenuButton>
             <MenuItems className="absolute left-0 mt-1 w-40 origin-top-left rounded-md bg-gray-800 border border-gray-700 shadow-lg z-50">
               <div className="py-1">
@@ -154,16 +200,38 @@ const Navbar = () => {
             </MenuItems>
           </HeadlessMenu>
 
-          <Link to="/blog" className="block" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
-          <Link to="#" className="block" onClick={() => setIsMobileMenuOpen(false)}>Elements</Link>
+          <Link
+            to="/blog"
+            className="block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Blog
+          </Link>
 
           <div className="pt-2 border-t dark:border-gray-700 space-y-2">
             {!isLoggedIn ? (
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block text-red-600">Login</Link>
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-red-600"
+              >
+                Login
+              </Link>
             ) : (
-              <button onClick={logout} className="block text-left text-red-600 w-full">Logout</button>
+              <button
+                onClick={logout}
+                className="block text-left text-red-600 w-full"
+              >
+                Logout
+              </button>
             )}
-            <Link to="/wishlist" className="block" onClick={() => setIsMobileMenuOpen(false)}>Wishlist</Link>
+            <Link
+              to="/wishlist"
+              className="block"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Wishlist
+            </Link>
 
             {/* Cart (mobile) مع عدّاد */}
             <Link
@@ -200,18 +268,27 @@ const Navbar = () => {
         {/* Actions */}
         <div className="flex items-center gap-6 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
           {!isLoggedIn ? (
-            <Link to="/login" className="flex items-center gap-1 hover:text-red-500">
+            <Link
+              to="/login"
+              className="flex items-center gap-1 hover:text-red-500"
+            >
               <User size={18} />
               <span>Login</span>
             </Link>
           ) : (
-            <Link to="/account" className="flex items-center gap-1 hover:text-red-500">
+            <Link
+              to="/account"
+              className="flex items-center gap-1 hover:text-red-500"
+            >
               <User size={18} />
               <span>Account</span>
             </Link>
           )}
 
-          <Link to="/wishlist" className="flex items-center gap-1 hover:text-red-500">
+          <Link
+            to="/wishlist"
+            className="flex items-center gap-1 hover:text-red-500"
+          >
             <Heart size={18} />
             <span>Wishlist</span>
           </Link>
@@ -245,10 +322,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-
-
-
-
-
