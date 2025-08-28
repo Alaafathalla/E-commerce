@@ -154,7 +154,7 @@ const e=error;
       } catch {e}
     })();
     return () => { ignore = true; };
-  }, [getRecipeTags, selectedTag]);
+  }, [getRecipeTags, selectedTag,e]);
 
   useEffect(() => {
     if (!selectedTag) return;
