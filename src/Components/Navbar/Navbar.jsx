@@ -73,7 +73,7 @@ const Navbar = () => {
         {/* Desktop Links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
           <Link to="/">Home</Link>
-          <Link to="/category" className="flex items-center gap-1">
+          <Link to="/categories" className="flex items-center gap-1">
             Category
           </Link>
           <Link to="/products" className="flex items-center gap-1">
