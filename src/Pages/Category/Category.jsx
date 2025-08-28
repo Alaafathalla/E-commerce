@@ -1,21 +1,129 @@
 
-
 import React, { useEffect, useMemo, useState, useTransition } from "react";
-import { ChevronLeft, ChevronRight, RefreshCcw, Search, Tag } from "lucide-react";
-
-/**
- * Categories.jsx (React + JS, no Next.js)
- *
- * Usage:
- * <Categories getRecipesByTag={getRecipesByTag} />
- * - Pass the async function you shared (`getRecipesByTag(tag, forceRefresh?, params?)`).
- * - Styling uses Tailwind classes (optional). Swap/remove if you don't use Tailwind.
- */
+import { ChevronLeft, ChevronRight, RefreshCcw, Search, Tag, Star, Clock3, Flame } from "lucide-react";
+import useDataStore from "../../Stores/useDataStore";
 
 const DEFAULT_LIMIT = 12;
 
-export default function Categories({ getRecipesByTag }) {
-  const [tags, setTags] = useState([]);
+const TAG_IMAGES = {
+  breakfast: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1600&auto=format&fit=crop",
+  lunch: "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop",
+  dinner: "https://images.unsplash.com/photo-1490818387583-1baba5e638af?q=80&w=1600&auto=format&fit=crop",
+  dessert: "https://images.unsplash.com/photo-1475855581690-80accde3ae2b?q=80&w=1600&auto=format&fit=crop",
+  soup: "https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=1600&auto=format&fit=crop",
+  salad: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1600&auto=format&fit=crop",
+  pasta: "https://images.unsplash.com/photo-1524182576065-4f0792cfe6cf?q=80&w=1600&auto=format&fit=crop",
+  chicken: "https://images.unsplash.com/photo-1604908554049-51e25ba78a5d?q=80&w=1600&auto=format&fit=crop",
+  beef: "https://images.unsplash.com/photo-1553163147-622ab57be1c7?q=80&w=1600&auto=format&fit=crop",
+  vegan: "https://images.unsplash.com/photo-1505575972945-280edc63f3b0?q=80&w=1600&auto=format&fit=crop",
+  "milks & dairies": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1600&auto=format&fit=crop",
+  "coffes & teas": "https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1600&auto=format&fit=crop",
+  "pet foods": "https://images.unsplash.com/photo-1558944351-c37d31fd69de?q=80&w=1600&auto=format&fit=crop",
+  meats: "https://images.unsplash.com/photo-1604908177071-8aa3d7dfb2a2?q=80&w=1600&auto=format&fit=crop",
+  vegetables: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?q=80&w=1600&auto=format&fit=crop",
+  fruits: "https://images.unsplash.com/photo-1574226516831-e1dff420e43e?q=80&w=1600&auto=format&fit=crop",
+};
+
+function placeholderFor(text) {
+  const t = encodeURIComponent(String(text || "tag"));
+  return `https://placehold.co/600x400?text=${t}`;
+}
+
+function pickTagImage(tag) {
+  if (!tag) return placeholderFor(tag);
+  const key = String(tag).toLowerCase();
+  return TAG_IMAGES[key] || placeholderFor(tag);
+}
+
+function formatMinutes(min) {
+  if (!min && min !== 0) return null;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h && m) return `${h}س ${m}د`;
+  if (h) return `${h}س`;
+  return `${m}د`;
+}
+
+function Stars({ rating = 0 }) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  const total = 5;
+  return (
+    <div className="flex items-center gap-0.5" aria-label={`التقييم ${rating} من 5`}>
+      {Array.from({ length: total }).map((_, i) => {
+        const filled = i < full || (i === full && half);
+        return (
+          <Star key={i} className={`h-4 w-4 ${filled ? "fill-yellow-400 stroke-yellow-500" : "stroke-gray-300"}`} />
+        );
+      })}
+    </div>
+  );
+}
+
+function ImageWithFallback({ src, alt, className }) {
+  const [error, setError] = React.useState(false);
+  const url = error ? "https://placehold.co/600x400" : src;
+  return (
+    <img
+      src={url}
+      alt={alt}
+      onError={() => setError(true)}
+      loading="lazy"
+      className={className}
+    />
+  );
+}
+
+function RecipeCard({ r }) {
+  const prep = formatMinutes(r?.prepTimeMinutes) || "";
+  const cook = formatMinutes(r?.cookTimeMinutes) || "";
+  const total = r?.prepTimeMinutes && r?.cookTimeMinutes ? formatMinutes(r.prepTimeMinutes + r.cookTimeMinutes) : null;
+  const kcal = r?.caloriesPerServing;
+  const subtitle = r?.cuisine || (Array.isArray(r?.mealType) ? r.mealType.join("، ") : "");
+
+  return (
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800">
+        <ImageWithFallback
+          src={r?.image || r?.thumbnail || "https://placehold.co/600x400"}
+          alt={r?.name || "وصفة"}
+          className="h-full w-full object-cover"
+        />
+        {subtitle && (
+          <span className="absolute left-2 top-2 rounded-full bg-black/70 px-3 py-1 text-xs text-white backdrop-blur">
+            {subtitle}
+          </span>
+        )}
+      </div>
+      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{r?.cuisine || r?.mealType?.[0] || "Recipe"}</p>
+      <h3 className="line-clamp-2 mt-1 text-sm font-semibold text-gray-800 dark:text-white">{r?.name}</h3>
+
+      <div className="mt-2 flex items-center justify-between">
+        <Stars rating={Number(r?.rating) || 0} />
+        {total && (
+          <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
+            <Clock3 className="h-4 w-4" /> {total}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-2 flex items-center gap-3 text-xs text-gray-600 dark:text-gray-300">
+        {prep && (
+          <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" /> تحضير: {prep}</span>
+        )}
+        {cook && (
+          <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" /> طبخ: {cook}</span>
+        )}
+        {kcal ? (
+          <span className="ml-auto inline-flex items-center gap-1"><Flame className="h-3 w-3" /> {kcal} كال</span>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+export default function Categories() {
+  const [showAllTags, setShowAllTags] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [page, setPage] = useState(1);
@@ -26,24 +134,30 @@ export default function Categories({ getRecipesByTag }) {
   const [error, setError] = useState(null);
   const [loadingKey, setLoadingKey] = useState(null);
 
-  // Fetch available tags once
+  const recipeTags = useDataStore((s) => s.recipeTags);
+  const tagsLoading = useDataStore((s) => s.tagsLoading);
+  const tagsError = useDataStore((s) => s.tagsError);
+  const getRecipeTags = useDataStore((s) => s.getRecipeTags);
+  const getRecipesByTag = useDataStore((s) => s.getRecipesByTag);
+const e=error;
+  const heroImage = selectedTag ? pickTagImage(selectedTag) : "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1920&auto=format&fit=crop";
+
   useEffect(() => {
     let ignore = false;
     (async () => {
       try {
-        const res = await fetch("https://dummyjson.com/recipes/tags", { cache: "force-cache" });
-        const data = await res.json();
-        if (!ignore) setTags(Array.isArray(data) ? data : data?.tags || []);
-      } catch (e) {
-        console.error("Failed to load tags", e);
-      }
+        const tags = await getRecipeTags(false);
+        if (ignore) return;
+        if (!selectedTag && Array.isArray(tags) && tags.length) {
+          // setSelectedTag(String(tags[0]));
+        }
+      } catch {e}
     })();
     return () => { ignore = true; };
-  }, []);
+  }, [getRecipeTags, selectedTag]);
 
-  // Fetch recipes whenever selection / pagination changes
   useEffect(() => {
-    if (!selectedTag || typeof getRecipesByTag !== "function") return;
+    if (!selectedTag) return;
     const skip = (page - 1) * limit;
     const params = { skip, limit };
 
@@ -54,8 +168,7 @@ export default function Categories({ getRecipesByTag }) {
         const data = await getRecipesByTag(selectedTag, forceRefresh, params);
         setPayload(data || { recipes: [], total: 0, skip, limit });
       } catch (e) {
-        const msg = e?.message || "فشل في جلب الوصفات";
-        setError(msg);
+        setError(e?.message || "فشل في جلب الوصفات");
       } finally {
         setLoadingKey(null);
         if (forceRefresh) setForceRefresh(false);
@@ -65,98 +178,166 @@ export default function Categories({ getRecipesByTag }) {
 
   const filteredTags = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? tags.filter((t) => String(t).toLowerCase().includes(q)) : tags;
-  }, [tags, query]);
+    const list = Array.isArray(recipeTags) ? recipeTags : [];
+    return q ? list.filter((t) => String(t).toLowerCase().includes(q)) : list;
+  }, [recipeTags, query]);
 
   const totalPages = Math.max(1, Math.ceil((payload?.total || 0) / limit));
   const loading = isPending || (!!selectedTag && loadingKey === selectedTag.toLowerCase());
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">التصنيفات</h1>
-        <div className="flex items-center gap-2">
-          <div className="relative w-72">
-            <input
-              type="text"
-              placeholder="ابحث عن وسم…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-xl border bg-white/60 px-10 py-2 outline-none ring-0 backdrop-blur-sm transition focus:border-transparent focus:shadow-md"
-            />
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" />
+    <div className="mx-auto max-w-7xl px-4 pb-10">
+      {/* Hero */}
+      <div className="relative mb-6 overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-700">
+        <ImageWithFallback
+          src={heroImage}
+          alt="خلفية التصنيفات"
+          className="h-48 w-full object-cover sm:h-64 md:h-72"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute inset-0 flex items-end justify-between p-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white drop-shadow-sm">اكتشف التصنيفات</h1>
+            <p className="mt-1 text-white/80">ابحث عن أوسمة، واختر تصنيفًا لتصفّح الوصفات المصوّرة.</p>
           </div>
           <button
             onClick={() => setForceRefresh(true)}
-            className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-gray-50"
+            className="hidden items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-sm text-white backdrop-blur hover:bg-white/20 sm:inline-flex"
             title="تحديث البيانات"
           >
             <RefreshCcw className="h-4 w-4" /> تحديث
           </button>
         </div>
+      </div>
+
+      {/* Toolbar */}
+      <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:w-96">
+          <input
+            type="text"
+            placeholder="ابحث عن وسم…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 px-11 py-3 outline-none backdrop-blur transition focus:border-transparent focus:shadow-md"
+          />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 opacity-60" />
+        </div>
+        <button
+          onClick={() => setForceRefresh(true)}
+          className="inline-flex items-center gap-2 self-start rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+          title="تحديث البيانات"
+        >
+          <RefreshCcw className="h-4 w-4" /> تحديث
+        </button>
       </header>
 
-      {/* Tags grid */}
+      {/* Tags (chips + modal) */}
       <section className="mb-8">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {filteredTags.map((t) => {
-            const active = selectedTag?.toLowerCase() === String(t).toLowerCase();
+        {tagsError && (
+          <div className="mb-3 rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">{tagsError}</div>
+        )}
+        <div className="flex items-center gap-2 overflow-x-auto py-1">
+          {(tagsLoading ? Array.from({ length: 12 }).map((_, i) => `skeleton-${i}`) : filteredTags.slice(0, 12)).map((t, idx) => {
+            const key = typeof t === "string" ? t : String(idx);
+            const label = typeof t === "string" ? t : "";
+            const active = selectedTag?.toLowerCase() === label.toLowerCase();
             return (
               <button
-                key={t}
-                onClick={() => { setSelectedTag(String(t)); setPage(1); }}
+                key={key}
+                onClick={() => { if (label) { setSelectedTag(label); setPage(1); } }}
+                disabled={!label}
                 className={
-                  "flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-sm transition " +
-                  (active ? "border-transparent bg-black text-white shadow" : "hover:bg-gray-50")
+                  "whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition " +
+                  (active
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800")
                 }
+                title={label}
               >
-                <span className="truncate">{String(t)}</span>
-                <Tag className="h-4 w-4 shrink-0" />
+                {label || "…"}
               </button>
             );
           })}
+          {filteredTags.length > 12 && (
+            <button
+              onClick={() => setShowAllTags(true)}
+              className="whitespace-nowrap rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              عرض الكل
+            </button>
+          )}
         </div>
-        {filteredTags.length === 0 && (
+        {!tagsLoading && filteredTags.length === 0 && (
           <p className="mt-6 text-sm text-gray-500">لا توجد وسوم مطابقة.</p>
+        )}
+
+        {showAllTags && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setShowAllTags(false)} />
+            <div className="relative w-full sm:max-w-3xl max-h-[80vh] overflow-auto rounded-t-2xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-base font-semibold">كل التصنيفات</h3>
+                <button onClick={() => setShowAllTags(false)} className="rounded-md border px-2 py-1 text-sm">إغلاق</button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {filteredTags.map((t, idx) => {
+                  const label = String(t);
+                  const active = selectedTag?.toLowerCase() === label.toLowerCase();
+                  const img = pickTagImage(label);
+                  return (
+                    <button
+                      key={label + idx}
+                      onClick={() => { setSelectedTag(label); setPage(1); setShowAllTags(false); }}
+                      className={
+                        "group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-2 text-right transition hover:shadow " +
+                        (active ? "ring-2 ring-blue-600" : "")
+                      }
+                    >
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                        <ImageWithFallback src={img} alt={label} className="h-full w-full object-cover" />
+                      </div>
+                      <span className="truncate text-sm">{label}</span>
+                      <Tag className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         )}
       </section>
 
       {/* Recipes list */}
       <section>
         {!selectedTag && (
-          <div className="rounded-xl border p-6 text-gray-600">
-            اختر تصنيفًا من الأعلى لعرض الوصفات.
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 p-8 text-gray-600 dark:text-gray-300">
+            اختر تصنيفًا من الأعلى لعرض الوصفات المصحوبة بالصور.
           </div>
         )}
 
         {!!selectedTag && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">وصفات: {selectedTag}</h2>
-              <div className="flex items-center gap-2 text-sm">
-                <label className="text-gray-600">عدد العناصر في الصفحة</label>
-                <select
-                  className="rounded-lg border px-2 py-1"
-                  value={limit}
-                  onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-                >
-                  {[6, 12, 24, 48].map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">وصفات: {selectedTag}</h2>
+              <button onClick={() => setForceRefresh(true)} className="inline-flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
+                <RefreshCcw className="h-4 w-4" /> تحديث
+              </button>
             </div>
 
             {error && (
-              <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
-                حدث خطأ: {error}
-              </div>
+              <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">حدث خطأ: {error}</div>
             )}
 
             {loading && (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {Array.from({ length: limit }).map((_, i) => (
-                  <div key={i} className="h-40 animate-pulse rounded-xl bg-gray-100" />
+                  <div key={i} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-4">
+                    <div className="aspect-[4/3] w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
+                    <div className="mt-3 space-y-2">
+                      <div className="h-3 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="h-3 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -164,48 +345,47 @@ export default function Categories({ getRecipesByTag }) {
             {!loading && (
               <>
                 {payload.recipes?.length === 0 ? (
-                  <div className="rounded-xl border p-6 text-gray-600">لا توجد وصفات ضمن هذا التصنيف.</div>
+                  <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-gray-600 dark:text-gray-300">لا توجد وصفات ضمن هذا التصنيف.</div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {payload.recipes.map((r) => (
-                      <article key={r.id} className="group overflow-hidden rounded-2xl border">
-                        <a href={`/recipes/${r.id}`} className="block">
-                          <div className="aspect-video w-full overflow-hidden bg-gray-100">
-                            <img
-                              alt={r.name}
-                              src={r.image || r.thumbnail || "https://placehold.co/600x400"}
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              loading="lazy"
-                            />
-                          </div>
-                          <div className="p-3">
-                            <h3 className="line-clamp-1 font-medium">{r.name}</h3>
-                            <p className="mt-1 line-clamp-2 text-sm text-gray-600">{r.cuisine || (Array.isArray(r.mealType) ? r.mealType.join("، ") : "")}</p>
-                          </div>
-                        </a>
-                      </article>
+                      <RecipeCard key={r.id} r={r} />
                     ))}
                   </div>
                 )}
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-4 flex items-center justify-center gap-2">
-                    <button
-                      disabled={page <= 1}
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm disabled:opacity-50"
-                    >
-                      <ChevronRight className="h-4 w-4" /> السابق
-                    </button>
-                    <span className="rounded-xl border px-3 py-2 text-sm">{page} / {totalPages}</span>
-                    <button
-                      disabled={page >= totalPages}
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm disabled:opacity-50"
-                    >
-                      التالي <ChevronLeft className="h-4 w-4" />
-                    </button>
+                  <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        className="inline-flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm disabled:opacity-50"
+                      >
+                        <ChevronRight className="h-4 w-4" /> السابق
+                      </button>
+                      <span className="rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm">{page} / {totalPages}</span>
+                      <button
+                        disabled={page >= totalPages}
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        className="inline-flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm disabled:opacity-50"
+                      >
+                        التالي <ChevronLeft className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <label className="text-gray-600 dark:text-gray-300">/صفحة</label>
+                      <select
+                        className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1"
+                        value={limit}
+                        onChange={(e) => { const v = Number(e.target.value); setLimit(v); setPage(1); }}
+                      >
+                        {[6, 12, 24, 48].map((n) => (
+                          <option key={n} value={n}>{n}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
               </>
