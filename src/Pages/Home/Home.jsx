@@ -6,6 +6,7 @@ import SpecialDishes from '../../Components/SpecialDishes/SpecialDishes';
 import DealsOfTheDay from '../../Components/DealsOfTheDay/DealsOfTheDay';
 import WhyChoose from '../../Components/WhyChoose/WhyChoose';  
 import Pros from '../../Components/Pros/Pros'; 
+import { Helmet } from 'react-helmet';
 
 export default function Home() {
   return (
@@ -17,6 +18,11 @@ export default function Home() {
         <DealsOfTheDay />
         <WhyChoose />
         <Pros/> 
+              <Helmet>
+                <meta charSet="utf-8" />
+                <title>home</title>
+                <link rel="canonical" href="http://mysite.com/example" />
+            </Helmet>
     </main>
   );
 }

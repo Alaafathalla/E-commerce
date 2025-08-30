@@ -106,6 +106,12 @@ function RecipeCard({ r }) {
 
   return (
     <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition">
+    <Helmet>
+  <title>Categories</title>
+  <meta name="description" content="Browse our hotel categories including rooms, services, and amenities." />
+  <meta property="og:title" content="Categories" />
+</Helmet>
+
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800">
         <ImageWithFallback src={r?.image || r?.thumbnail} alt={r?.name || "Recipe"} className="h-full w-full object-cover" />
         {subtitle && (

@@ -70,11 +70,7 @@ function App() {
       </main>
       <Footer />
     
-      <Helmet>
-                <meta charSet="utf-8" />
-                <title>home</title>
-                <link rel="canonical" href="http://mysite.com/example" />
-            </Helmet>
+
       
     </div>
   );

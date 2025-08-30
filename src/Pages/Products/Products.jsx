@@ -5,7 +5,7 @@ import { Star, Tag, CheckCircle2 } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import useDataStore from "../../Stores/useDataStore";
 import useCartStore from "../../Stores/useCartStore";
-
+import Helmet from "react-helmet";
 const CATEGORIES = [
   "All",
   "Milks & Dairies",
@@ -20,6 +20,12 @@ function Rating({ value }) {
   const full = Math.round(value || 0);
   return (
     <div className="flex items-center gap-0.5 text-yellow-500">
+      <Helmet>
+  <title>Our Products</title>
+  <meta name="description" content="Explore our wide range of products and services tailored to your needs." />
+  <meta property="og:title" content="Our Products" />
+</Helmet>
+
       {Array.from({ length: 5 }).map((_, i) => (
         <Star key={i} size={14} fill={i < full ? "currentColor" : "none"} strokeWidth={1.5} />
       ))}

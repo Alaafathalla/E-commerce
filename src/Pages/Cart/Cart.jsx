@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ChevronLeft, CheckCircle2 } from "lucide-react";
 import useCartStore from "../../Stores/useCartStore"; // متجر السلة الوحيد
-
+import { Helmet } from "react-helmet";
 export default function CartPage() {
   // -------- Local cart (UI) ----------
   const items      = useCartStore((s) => s.items);
@@ -68,6 +68,12 @@ export default function CartPage() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <Helmet>
+  <title>Your Cart</title>
+  <meta name="description" content="View and manage the products you have added to your cart before checkout." />
+  <meta property="og:title" content="Cart Page" />
+</Helmet>
+
       {/* Toast */}
       {toast.show && (
         <div

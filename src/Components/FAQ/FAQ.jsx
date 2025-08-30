@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
-// swap with your own image/
 import faqImg from "../../assets/faq.png";
 import { Helmet } from "react-helmet";
 
-
-<Helmet>
-        <title>FAQ page</title>
-        <meta name="description" content="faq"/>
-        <meta property="og:title" content="الصفحة الرئيسية" />
-      </Helmet>
 const faqs = [
   {
     q: "What Facilities Does Your Hotel Have?",
@@ -43,7 +36,6 @@ const faqs = [
 
 function AccordionItem({ item, isOpen, onToggle }) {
   return (
-    
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
       <button
         onClick={onToggle}
@@ -79,29 +71,39 @@ export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        {/* Left Image */}
-        <div className="w-full">
-          <img
-            src={faqImg}
-            alt="Fresh vegetables"
-            className="w-full h-[340px] sm:h-[420px]  object-cover rounded-xl border border-gray-200 dark:border-gray-700"
-          />
-        </div>
+    <>
+      {/* ✅ Helmet هنا داخل الكومبوننت */}
+      <Helmet>
+        <title>FAQ Page</title>
+        <meta name="description" content="Frequently Asked Questions about our hotel and services" />
+        <meta property="og:title" content="FAQ Page" />
+      </Helmet>
 
-        {/* Right Accordion */}
-        <div className="space-y-3">
-          {faqs.map((item, i) => (
-            <AccordionItem
-              key={i}
-              item={item}
-              isOpen={openIndex === i}
-              onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          {/* Left Image */}
+          <div className="w-full">
+            <img
+              src={faqImg}
+              alt="Hotel FAQ"
+              className="w-full h-[340px] sm:h-[420px] object-cover rounded-xl border border-gray-200 dark:border-gray-700"
             />
-          ))}
+          </div>
+
+          {/* Right Accordion */}
+          <div className="space-y-3">
+            {faqs.map((item, i) => (
+              <AccordionItem
+                key={i}
+                item={item}
+                isOpen={openIndex === i}
+                onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
+

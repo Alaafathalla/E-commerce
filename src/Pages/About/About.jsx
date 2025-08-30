@@ -1,6 +1,6 @@
 import React from "react";
 import { ShieldCheck, PackageCheck, Headphones, Truck } from "lucide-react";
-
+import { Helmet } from "react-helmet";
 const stats = [
   { value: "0.1k", label: "Vendors" },
   { value: "23k", label: "Customers" },
@@ -34,7 +34,14 @@ export default function AboutSection({
   image = "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1470&auto=format&fit=crop",
 }) {
   return (
+    <>      <Helmet>
+  <title>About Us</title>
+  <meta name="description" content="Learn more about our hotel, team, and mission to serve guests with excellence." />
+  <meta property="og:title" content="About Us" />
+</Helmet>
     <section className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+
+
       {/* Top: Heading + body + stats + image */}
       <div className="grid items-start gap-10 md:grid-cols-2">
         {/* Copy column */}
@@ -117,7 +124,9 @@ export default function AboutSection({
             <p className="mt-3 text-sm leading-6 text-gray-600">{text}</p>
           </div>
         ))}
+        
       </div>
     </section>
+    </>
   );
 }

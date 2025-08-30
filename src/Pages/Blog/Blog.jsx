@@ -1,5 +1,6 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import {
   Search,
   Calendar,
@@ -66,7 +67,14 @@ function Pagination({ current = 1, total = 1, onChange = () => {}, siblingCount 
     "flex items-center gap-1 " + base + " hover:bg-gray-50 dark:hover:bg-gray-800";
 
   return (
+    
     <nav className="flex items-center justify-center gap-2">
+ <Helmet>
+  <title>Blog Page</title>
+  <meta name="description" content="Read our latest blog posts, travel tips, and hotel news." />
+  <meta property="og:title" content="Blog Page" />
+</Helmet>
+
       <button
         className={btn}
         onClick={() => onChange(Math.max(1, current - 1))}

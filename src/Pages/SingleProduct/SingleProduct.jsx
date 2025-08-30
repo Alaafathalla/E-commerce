@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import useDataStore from "../../Stores/useDataStore";
 import useCartStore from "../../Stores/useCartStore";
+import { Helmet } from "react-helmet";
 
 export default function SingleProduct() {
   const { id } = useParams();
@@ -93,6 +94,12 @@ export default function SingleProduct() {
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 dark:bg-gray-900">
+      <Helmet>
+  <title>Product Details - Luxury Suite</title>
+  <meta name="description" content="Detailed information about the Luxury Suite, features, and booking options." />
+  <meta property="og:title" content="Luxury Suite - Product Details" />
+</Helmet>
+
       {/* Toast */}
       {toast.show && (
         <div
