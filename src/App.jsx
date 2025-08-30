@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import {Helmet} from "react-helmet";
 import Navbar from "./Components/Navbar/Navbar";
 import Home from "./Pages/Home/Home";
 import Footer from "./Components/Footer/Footer";
@@ -68,6 +69,13 @@ function App() {
         </Routes>
       </main>
       <Footer />
+    
+      <Helmet>
+                <meta charSet="utf-8" />
+                <title>home</title>
+                <link rel="canonical" href="http://mysite.com/example" />
+            </Helmet>
+      
     </div>
   );
 }

@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 // swap with your own image/
 import faqImg from "../../assets/faq.png";
+import { Helmet } from "react-helmet";
 
+
+<Helmet>
+        <title>FAQ page</title>
+        <meta name="description" content="faq"/>
+        <meta property="og:title" content="الصفحة الرئيسية" />
+      </Helmet>
 const faqs = [
   {
     q: "What Facilities Does Your Hotel Have?",
@@ -36,6 +43,7 @@ const faqs = [
 
 function AccordionItem({ item, isOpen, onToggle }) {
   return (
+    
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
       <button
         onClick={onToggle}
