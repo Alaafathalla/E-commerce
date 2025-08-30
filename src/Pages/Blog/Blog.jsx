@@ -145,9 +145,9 @@ export default function BlogPage() {
               </span>
             </div>
 
-            <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
-              Health Benefits of a Raw food
-            </h1>
+<h1 className="mt-3 text-sm sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+  Health Benefits of a Raw food
+</h1>
 
             <p className="mt-4 text-gray-700 dark:text-gray-300 leading-relaxed">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde
