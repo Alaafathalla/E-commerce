@@ -1,31 +1,19 @@
 // src/Components/Navbar/Navbar.jsx
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Menu as HeadlessMenu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
-import {
-  Search,
-  Phone,
-  User,
-  Heart,
-  ShoppingCart,
-  ChevronDown,
-  X,
-  Menu as MenuIcon, // lucide menu icon
-} from "lucide-react";
+import { Search, Phone, User, Heart, ShoppingCart, X, Menu as MenuIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import useCartStore from "../../Stores/useCartStore";
+import useDataStore from "../../Stores/useDataStore"; // ✅ نستخدم الستور
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
-  // 🛒 عدّاد السلة (مجموع الكميات)
+  // 🛒 عدّاد السلة
   const items = useCartStore((s) => s.items);
   const cartCount = useMemo(
     () => (items || []).reduce((sum, it) => sum + (Number(it.qty) || 0), 0),
@@ -33,14 +21,45 @@ const Navbar = () => {
   );
   const badgeText = cartCount > 99 ? "99+" : String(cartCount || "");
 
+  // 🔖 دوالّ وتاجز من الستور
+  const getRecipeTags = useDataStore((s) => s.getRecipeTags);
+
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("token"));
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/login");
+  // const logout = () => {
+  //   localStorage.removeItem("token");
+  //   setIsLoggedIn(false);
+  //   navigate("/login");
+  // };
+
+  // ✅ البحث في الـCategories (tags)
+  const runCategorySearch = async () => {
+    const q = String(searchTerm || "").trim();
+    // حمّل التاجز (مع كاش داخلي 5 دقائق حسب كودك)
+    await getRecipeTags(false);
+
+    // خذ أحدث حالة من الستور مباشرة (علشان ما ننتظر إعادة الرندر)
+    const tags = (useDataStore.getState().recipeTags || []).map((t) => String(t));
+    if (tags.length === 0) {
+      // لو ما وصلتنا تاجز لأي سبب، نكمل بالتوجيه باسم المدخل كما هو
+      navigate(`/categories?tag=${encodeURIComponent(q || "Italian")}`);
+      return;
+    }
+
+    const ql = q.toLowerCase();
+    const exact = tags.find((t) => t.toLowerCase() === ql);
+    const starts = tags.find((t) => t.toLowerCase().startsWith(ql));
+    const includes = tags.find((t) => t.toLowerCase().includes(ql));
+    const chosen = exact || starts || includes || (q || "Italian");
+
+    navigate(`/categories?tag=${encodeURIComponent(chosen)}`);
+    setIsMobileMenuOpen(false);
+  };
+
+  const onSearchKeyDown = (e) => {
+    if (e.key === "Enter") runCategorySearch();
   };
 
   return (
@@ -57,68 +76,22 @@ const Navbar = () => {
             {isMobileMenuOpen ? <X /> : <MenuIcon />}
           </button>
 
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="logo" className="w-28 h-28 rounded-full" />
-            <div className="leading-tight">
-              <p className="text-lg font-bold text-gray-800 dark:text-white">
-                Foodzy
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                A Treasure of Tastes
-              </p>
-            </div>
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="logo" className="w-28 h-28 rounded-full" />
+          <div className="leading-tight">
+            <p className="text-lg font-bold text-gray-800 dark:text-white">Foodzy</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">A Treasure of Tastes</p>
           </div>
+        </div>
         </div>
 
         {/* Desktop Links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
           <Link to="/">Home</Link>
-          <Link to="/categories" className="flex items-center gap-1">
-            Category
-          </Link>
-          <Link to="/products" className="flex items-center gap-1">
-            Products
-          </Link>
-          <Link to="/faq" className="flex items-center gap-1">
-            FAQ
-          </Link>
-          <Link to="/about" className="flex items-center gap-1">
-            About
-          </Link>
-          {/* Pages dropdown */}
-          {/* <HeadlessMenu as="div" className="relative inline-block">
-            <MenuButton className="inline-flex w-auto justify-center gap-x-1.5 px-2 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Pages
-              <ChevronDown aria-hidden="true" className="-mr-1 size-4 text-gray-400" />
-            </MenuButton>
-
-            <MenuItems
-              transition
-              className="absolute right-0 z-10 mt-1 w-32 origin-top-right divide-y divide-white/10 rounded-md bg-gray-800 outline-1 -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-            >
-              <div className="py-0.5">
-                <MenuItem>
-                  <Link
-                    to="/faq"
-                    className="block px-3 py-1 text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-                  >
-                    FAQ
-                  </Link>
-                </MenuItem>
-              </div>
-              <div className="py-0.5">
-                <MenuItem>
-                  <Link
-                    to="/about"
-                    className="block px-3 py-1 text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-                  >
-                    About Us
-                  </Link>
-                </MenuItem>
-              </div>
-            </MenuItems>
-          </HeadlessMenu> */}
-
+          <Link to="/categories" className="flex items-center gap-1">Category</Link>
+          <Link to="/products" className="flex items-center gap-1">Products</Link>
+          <Link to="/faq" className="flex items-center gap-1">FAQ</Link>
+          <Link to="/about" className="flex items-center gap-1">About</Link>
           <Link to="/blog">Blog</Link>
         </nav>
 
@@ -129,122 +102,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden px-4 py-3 space-y-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 text-sm font-medium max-h-[70vh] overflow-y-auto">
-          <Link
-            to="/"
-            className="block"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Home
-          </Link>
-          <Link
-            to="/category"
-            className="block"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Category
-          </Link>
-          <Link
-            to="/products"
-            className="block"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Products
-          </Link>
-          <Link
-            to="/faq"
-            className="block"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            FAQ
-          </Link>
-          <Link
-            to="/about"
-            className="block"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            About
-          </Link>
-          {/* Mobile Pages dropdown */}
-          <HeadlessMenu as="div" className="relative inline-block">
-            <MenuButton className="inline-flex w-auto justify-center gap-x-1.5 px-2 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Pages
-              <ChevronDown
-                aria-hidden="true"
-                className="-mr-1 size-4 text-gray-400"
-              />
-            </MenuButton>
-            <MenuItems className="absolute left-0 mt-1 w-40 origin-top-left rounded-md bg-gray-800 border border-gray-700 shadow-lg z-50">
-              <div className="py-1">
-                <MenuItem>
-                  <Link
-                    to="/faq"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-3 py-1.5 text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white"
-                  >
-                    FAQ
-                  </Link>
-                </MenuItem>
-                <MenuItem>
-                  <Link
-                    to="/about"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-3 py-1.5 text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white"
-                  >
-                    About Us
-                  </Link>
-                </MenuItem>
-              </div>
-            </MenuItems>
-          </HeadlessMenu>
-
-          <Link
-            to="/blog"
-            className="block"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Blog
-          </Link>
-
-          <div className="pt-2 border-t dark:border-gray-700 space-y-2">
-            {!isLoggedIn ? (
-              <Link
-                to="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-red-600"
-              >
-                Login
-              </Link>
-            ) : (
-              <button
-                onClick={logout}
-                className="block text-left text-red-600 w-full"
-              >
-                Logout
-              </button>
-            )}
-            <Link
-              to="/wishlist"
-              className="block"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Wishlist
-            </Link>
-
-            {/* Cart (mobile) مع عدّاد */}
-            <Link
-              to="/cart"
-              className="block"
-              onClick={() => setIsMobileMenuOpen(false)}
-              aria-label={`Cart${cartCount ? ` (${cartCount})` : ""}`}
-            >
-              Cart{cartCount > 0 ? ` (${badgeText})` : ""}
-            </Link>
-          </div>
-        </div>
-      )}
+      {/* Mobile Menu (ابقِه كما لديك) */}
 
       {/* Desktop Search + Actions */}
       <div className="px-4 pb-3 lg:px-8 hidden lg:flex items-center justify-between gap-6">
@@ -252,15 +110,18 @@ const Navbar = () => {
         <div className="flex w-full max-w-4xl border border-gray-300 dark:border-gray-600 rounded overflow-hidden bg-white dark:bg-gray-800">
           <input
             type="text"
-            placeholder="Search For Items..."
+            placeholder="Search category (tag)… e.g. Italian, Dessert"
             className="px-3 py-2 w-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={onSearchKeyDown}
           />
-          <select className="text-sm border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 outline-none">
-            <option>All Categories</option>
-            <option>Snacks</option>
-            <option>Drinks</option>
-          </select>
-          <button className="bg-black hover:bg-gray-800 text-white px-4 flex items-center justify-center">
+          <button
+            className="bg-black hover:bg-gray-800 text-white px-4 flex items-center justify-center"
+            onClick={runCategorySearch}
+            aria-label="Search Categories"
+            title="Search categories"
+          >
             <Search size={16} />
           </button>
         </div>
@@ -268,32 +129,22 @@ const Navbar = () => {
         {/* Actions */}
         <div className="flex items-center gap-6 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
           {!isLoggedIn ? (
-            <Link
-              to="/login"
-              className="flex items-center gap-1 hover:text-red-500"
-            >
+            <Link to="/login" className="flex items-center gap-1 hover:text-red-500">
               <User size={18} />
               <span>Login</span>
             </Link>
           ) : (
-            <Link
-              to="/account"
-              className="flex items-center gap-1 hover:text-red-500"
-            >
+            <Link to="/account" className="flex items-center gap-1 hover:text-red-500">
               <User size={18} />
               <span>Account</span>
             </Link>
           )}
 
-          <Link
-            to="/wishlist"
-            className="flex items-center gap-1 hover:text-red-500"
-          >
+          <Link to="/wishlist" className="flex items-center gap-1 hover:text-red-500">
             <Heart size={18} />
             <span>Wishlist</span>
           </Link>
 
-          {/* Cart (desktop) مع بادج */}
           <Link
             to="/cart"
             className="relative flex items-center gap-1 hover:text-red-500"
@@ -301,16 +152,8 @@ const Navbar = () => {
           >
             <ShoppingCart size={18} />
             <span>Cart</span>
-
             {cartCount > 0 && (
-              <span
-                className="
-                  absolute -top-2 -right-2
-                  h-5 min-w-[1.25rem] px-1
-                  rounded-full text-[10px] leading-5 text-white
-                  bg-red-500 text-center font-semibold shadow
-                "
-              >
+              <span className="absolute -top-2 -right-2 h-5 min-w-[1.25rem] px-1 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
                 {badgeText}
               </span>
             )}
@@ -322,3 +165,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

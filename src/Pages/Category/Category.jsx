@@ -475,11 +475,12 @@ export default function Categories() {
           </div>
         )}
       </section>
-      <Helmet>
-        <title>FAQ page</title>
-        <meta name="description" content="faq"/>
-        <meta property="og:title" content="الصفحة الرئيسية" />
-      </Helmet>
+<Helmet>
+  <title>Categories</title>
+  <meta name="description" content="Browse our hotel categories including rooms, services, and amenities." />
+  <meta property="og:title" content="Categories" />
+</Helmet>
+
     </div>
   );
 }
