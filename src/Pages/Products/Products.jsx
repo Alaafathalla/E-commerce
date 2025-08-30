@@ -20,14 +20,13 @@ function Rating({ value }) {
   const full = Math.round(value || 0);
   return (
     <div className="flex items-center gap-0.5 text-yellow-500">
-      <Helmet>
-  <title>Our Products</title>
-  <meta name="description" content="Explore our wide range of products and services tailored to your needs." />
-  <meta property="og:title" content="Our Products" />
-</Helmet>
-
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} size={14} fill={i < full ? "currentColor" : "none"} strokeWidth={1.5} />
+        <Star
+          key={i}
+          size={14}
+          fill={i < full ? "currentColor" : "none"}
+          strokeWidth={1.5}
+        />
       ))}
       <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
         ({Number(value || 0).toFixed(1)})
@@ -165,9 +164,12 @@ export default function ProductsPage() {
         (active === "All" || p.category === active) &&
         p.title.toLowerCase().includes(query.toLowerCase())
     );
-    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
-    if (sort === "alpha") list = [...list].sort((a, b) => a.title.localeCompare(b.title));
+    if (sort === "price-asc")
+      list = [...list].sort((a, b) => a.price - b.price);
+    if (sort === "price-desc")
+      list = [...list].sort((a, b) => b.price - a.price);
+    if (sort === "alpha")
+      list = [...list].sort((a, b) => a.title.localeCompare(b.title));
     return list;
   }, [products, active, query, sort]);
 
@@ -258,7 +260,9 @@ export default function ProductsPage() {
 
       {/* Loading / Error */}
       {loading && (
-        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">Loading products…</div>
+        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+          Loading products…
+        </div>
       )}
       {error && <div className="mt-6 text-sm text-red-600">{error}</div>}
 
@@ -271,16 +275,18 @@ export default function ProductsPage() {
 
       {/* Empty state */}
       {!loading && !error && filtered.length === 0 && (
-        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">No products found.</div>
+        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+          No products found.
+        </div>
       )}
+      <Helmet>
+        <title>Our Products</title>
+        <meta
+          name="description"
+          content="Explore our wide range of products and services tailored to your needs."
+        />
+        <meta property="og:title" content="Our Products" />
+      </Helmet>
     </section>
   );
 }
-
-
-
-
-
-
-
-

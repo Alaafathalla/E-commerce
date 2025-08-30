@@ -40,16 +40,21 @@ const TAG_IMAGES = {
 
 const heroFor = (tag) => (tag ? pickTagImage(tag) : "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1920&auto=format&fit=crop");
 
-function placeholderFor(text) {
-  const t = encodeURIComponent(String(text || "tag"));
-  return `https://placehold.co/600x400?text=${t}`;
-}
+
 
 function pickTagImage(tag) {
-  if (!tag) return placeholderFor(tag);
+  if (!tag) return TAG_IMAGES.soup; // soup كافتراضي عام
+
   const key = String(tag).toLowerCase();
-  return TAG_IMAGES[key] || placeholderFor(tag);
+  const candidate = TAG_IMAGES[key];
+
+  // إن كان فيه URL وغير فاضي، نرجّعه، وإلا نستخدم صورة الـsoup
+  return (typeof candidate === "string" && candidate.trim().length > 0)
+    ? candidate
+    : TAG_IMAGES.soup;
 }
+
+
 
 function getSafeImageUrl(url) {
   if (!url || typeof url !== "string" || url.trim() === "") return STATIC_FALLBACK_IMG;
