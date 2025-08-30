@@ -10,7 +10,7 @@ import {
   Menu as MenuIcon,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence} from "framer-motion";
+import { AnimatePresence,motion} from "framer-motion";
 import logo from "../../assets/logo.png";
 import useCartStore from "../../Stores/useCartStore";
 import useDataStore from "../../Stores/useDataStore";
@@ -105,7 +105,7 @@ const Navbar = () => {
     }
   };
 
-  // 🎞️ Variants لطراوة أكثر لعناصر الروابط داخل الدرج
+  // 🎞️ Variants لطراوة أكثر (اختياري لعناصر الروابط داخل الدرج)
   const listVariants = {
     hidden: { opacity: 0, x: -8 },
     show: (i = 1) => ({
@@ -122,7 +122,7 @@ const Navbar = () => {
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 transition-colors duration-300">
       {/* Top Bar */}
-      <div className="mx-auto max-w-7xl flex items-center justify-between px-4 py-3 lg:px-10 xl:px-12 lg:py-4">
+      <div className="flex items-center justify-between px-4 py-3 lg:px-8">
         {/* Logo & Toggle */}
         <div className="flex items-center gap-4">
           <button
@@ -135,8 +135,8 @@ const Navbar = () => {
             {isMobileMenuOpen ? <X /> : <MenuIcon />}
           </button>
 
-          <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="logo" className="w-28 h-28 rounded-full" />
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logo} alt="logo" className="w-12 h-12 rounded-full" />
             <div className="leading-tight">
               <p className="text-lg font-bold text-gray-800 dark:text-white">Foodzy</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">A Treasure of Tastes</p>
@@ -145,9 +145,9 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Links */}
-        <nav className="hidden lg:flex items-center gap-8 xl:gap-10 text-[15px] font-medium text-gray-700 dark:text-gray-200">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
           {NAV_LINKS.map((l) => (
-            <Link key={l.to} to={l.to} className="hover:text-red-500 transition-colors">
+            <Link key={l.to} to={l.to} className="hover:text-red-500">
               {l.label}
             </Link>
           ))}
@@ -161,9 +161,9 @@ const Navbar = () => {
       </div>
 
       {/* Desktop Search + Actions */}
-      <div className="mx-auto max-w-7xl px-4 pt-2 pb-8 lg:px-10 xl:px-12 hidden lg:flex items-center justify-between gap-8 lg:gap-10">
+      <div className="px-4 pb-3 lg:px-8 hidden lg:flex items-center justify-between gap-6">
         {/* Search */}
-        <div className="flex w-full max-w-5xl xl:max-w-6xl border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+        <div className="flex w-full max-w-4xl border border-gray-300 dark:border-gray-600 rounded overflow-hidden bg-white dark:bg-gray-800">
           <input
             type="text"
             placeholder="Search category (tag)… e.g. Italian, Dessert"
@@ -174,7 +174,7 @@ const Navbar = () => {
             aria-label="Search categories"
           />
           <button
-            className="bg-black hover:bg-gray-800 text-white px-5 py-2 flex items-center justify-center"
+            className="bg-black hover:bg-gray-800 text-white px-4 flex items-center justify-center"
             onClick={runCategorySearch}
             aria-label="Search Categories"
             title="Search categories"
@@ -184,7 +184,7 @@ const Navbar = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-7 xl:gap-8 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
+        <div className="flex items-center gap-6 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
           {!isLoggedIn ? (
             <Link to="/login" className="flex items-center gap-1 hover:text-red-500">
               <User size={18} />
@@ -210,7 +210,7 @@ const Navbar = () => {
             <ShoppingCart size={18} />
             <span>Cart</span>
             {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 h-5 min-w-[1.25rem] px-1.5 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
+              <span className="absolute -top-2 -right-2 h-5 min-w-[1.25rem] px-1 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
                 {badgeText}
               </span>
             )}
@@ -340,7 +340,7 @@ const Navbar = () => {
                     <ShoppingCart size={18} />
                     <span>Cart</span>
                     {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 h-5 min-w-[1.25rem] px-1.5 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
+                      <span className="absolute -top-2 -right-2 h-5 min-w-[1.25rem] px-1 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
                         {badgeText}
                       </span>
                     )}
@@ -361,5 +361,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
 
