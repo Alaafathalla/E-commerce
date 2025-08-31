@@ -347,71 +347,125 @@ export default function Categories() {
       </header>
 
       {/* Tags (chips + modal) */}
-      <section className="mb-8">
-        {tagsError && (
-          <div className="mb-3 rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">{tagsError}</div>
-        )}
+<section className="mb-8">
+  {tagsError && (
+    <div className="mb-3 rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
+      {tagsError}
+    </div>
+  )}
 
-        <div className="flex items-center gap-2 overflow-x-auto py-1">
-          {(tagsLoading ? Array.from({ length: 12 }).map((_, i) => `skeleton-${i}`) : filteredTags.slice(0, 12)).map((t, idx) => {
-            const label = typeof t === "string" ? t : "";
-            const isActive = selectedTag.toLowerCase() === label.toLowerCase();
-            return (
-              <TagChip key={label || idx} label={label} isActive={isActive} onClick={setActiveTag} />
-            );
-          })}
+  {/* Tag strip */}
+  <div
+    className="flex gap-2 py-1 overflow-x-auto sm:overflow-x-visible scroll-px-4 px-1 sm:px-0"
+    role="tablist"
+    aria-label="Tag filters"
+  >
+    {(tagsLoading
+      ? Array.from({ length: 12 }).map((_, i) => `skeleton-${i}`)
+      : filteredTags.slice(0, 12)
+    ).map((t, idx) => {
+      const label = typeof t === "string" ? t : "";
+      const isActive =
+        typeof selectedTag === "string" &&
+        selectedTag.toLowerCase() === label.toLowerCase();
 
-          {filteredTags.length > 12 && (
-            <button
-              onClick={() => setShowAllTags(true)}
-              className="whitespace-nowrap rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              View all
-            </button>
-          )}
+      // On mobile: only show first 3 chips. On ≥sm: show up to 12.
+      const responsiveVisibility = idx > 2 ? "hidden sm:inline-flex" : "";
+
+      return (
+        <TagChip
+          key={label || idx}
+          label={label}
+          isActive={isActive}
+          onClick={setActiveTag}
+          className={`shrink-0 ${responsiveVisibility}`}
+        />
+      );
+    })}
+
+    {/* Always show "View all" when there are any tags */}
+    {filteredTags.length > 0 && (
+      <button
+        onClick={() => setShowAllTags(true)}
+        className="shrink-0 whitespace-nowrap rounded-full border border-gray-200 px-3 py-1.5 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+        aria-haspopup="dialog"
+        aria-expanded={showAllTags}
+      >
+        View all
+      </button>
+    )}
+  </div>
+
+  {!tagsLoading && filteredTags.length === 0 && (
+    <p className="mt-6 text-sm text-gray-500">No matching tags.</p>
+  )}
+
+  {/* Modal */}
+  {showAllTags && (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label="All categories"
+    >
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => setShowAllTags(false)}
+      />
+      <div className="relative w-full sm:max-w-3xl max-h-[80vh] overflow-auto rounded-t-2xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-xl">
+        <div className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-gray-300 sm:hidden" />
+
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-base font-semibold">All categories</h3>
+          <button
+            onClick={() => setShowAllTags(false)}
+            className="rounded-md border px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            Close
+          </button>
         </div>
 
-        {!tagsLoading && filteredTags.length === 0 && (
-          <p className="mt-6 text-sm text-gray-500">No matching tags.</p>
-        )}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {filteredTags.map((t, idx) => {
+            const label = String(t);
+            const img = pickTagImage(label);
+            const isActive =
+              typeof selectedTag === "string" &&
+              selectedTag.toLowerCase() === label.toLowerCase();
+            const to = `?tag=${encodeURIComponent(label)}`;
 
-        {showAllTags && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={() => setShowAllTags(false)} />
-            <div className="relative w-full sm:max-w-3xl max-h-[80vh] overflow-auto rounded-t-2xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-base font-semibold">All categories</h3>
-                <button onClick={() => setShowAllTags(false)} className="rounded-md border px-2 py-1 text-sm">Close</button>
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {filteredTags.map((t, idx) => {
-                  const label = String(t);
-                  const img = pickTagImage(label);
-                  const isActive = selectedTag.toLowerCase() === label.toLowerCase();
-                  const to = `?tag=${encodeURIComponent(label)}`;
-                  return (
-                    <NavLink
-                      key={label + idx}
-                      to={to}
-                      onClick={() => { setActiveTag(label); setShowAllTags(false); }}
-                      className={
-                        "group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-2 text-right transition hover:shadow " +
-                        (isActive ? "ring-2 ring-blue-600" : "")
-                      }
-                    >
-                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
-                        <ImageWithFallback src={img} alt={label} className="h-full w-full object-cover" />
-                      </div>
-                      <span className="truncate text-sm">{label}</span>
-                      <Tag className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
-                    </NavLink>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
+            return (
+              <NavLink
+                key={label + idx}
+                to={to}
+                onClick={() => {
+                  setActiveTag(label);
+                  setShowAllTags(false);
+                }}
+                className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-2 transition hover:shadow-sm ${
+                  isActive ? "ring-2 ring-blue-600 border-blue-200" : ""
+                }`}
+              >
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                  <ImageWithFallback
+                    src={img}
+                    alt={label}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <span className="truncate text-sm">{label}</span>
+                <Tag className="ml-auto h-4 w-4 text-gray-400" />
+              </NavLink>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  )}
+</section>
+
 
       {/* Recipes list */}
       <section>
