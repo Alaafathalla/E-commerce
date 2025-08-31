@@ -243,8 +243,8 @@ export default function SingleProduct() {
 
           {/* Extra info */}
           <div className="mt-8 rounded-2xl bg-white p-4 ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700">
-            <h3 className="text-base font-semibold mb-2 text-gray-600 dark:text-gray-100">Ingredients</h3>
-            <ul className="list-disc pl-5 text-sm text-gray-300 dark:text-gray-300">
+            <h3 className="text-2xl font-semibold mb-2 text-gray-600 dark:text-gray-100">Ingredients</h3>
+            <ul className=" pl-5 text-sm text-gray-300 list-none dark:text-gray-300">
               {Array.isArray(recipe.ingredients) && recipe.ingredients.length ? (
                 recipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)
               ) : (
@@ -254,8 +254,8 @@ export default function SingleProduct() {
           </div>
 
           <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700">
-            <h3 className="text-base font-semibold mb-2 text-gray-600 dark:text-gray-100">Instructions</h3>
-            <ol className="list-decimal pl-5 text-sm text-gray-300 dark:text-gray-300 space-y-1">
+            <h3 className="text-2xl font-semibold mb-2 text-gray-600 dark:text-gray-100">Instructions</h3>
+            <ol className=" pl-5 text-sm text-gray-300 dark:text-gray-300 list-none space-y-1">
               {Array.isArray(recipe.instructions) && recipe.instructions.length ? (
                 recipe.instructions.map((step, i) => <li key={i}>{step}</li>)
               ) : (

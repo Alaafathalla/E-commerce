@@ -9,8 +9,8 @@ import {
   X,
   Menu as MenuIcon,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence,motion} from "framer-motion";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import logo from "../../assets/logo.png";
 import useCartStore from "../../Stores/useCartStore";
 import useDataStore from "../../Stores/useDataStore";
@@ -23,6 +23,15 @@ const NAV_LINKS = [
   { to: "/about", label: "About" },
   { to: "/blog", label: "Blog" },
 ];
+
+// صنف أساسي للروابط + مفعّل
+const desktopLinkBase =
+  "relative px-1 py-2 text-sm font-medium transition-colors duration-200 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 rounded";
+const desktopLinkActive =
+  "text-red-600 after:content-[''] after:absolute after:left-0 after:-bottom-[6px] after:h-[2px] after:w-full after:bg-red-600";
+
+const mobileLinkBase =
+  "block rounded px-3 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -105,7 +114,7 @@ const Navbar = () => {
     }
   };
 
-  // 🎞️ Variants لطراوة أكثر (اختياري لعناصر الروابط داخل الدرج)
+  // 🎞️ Variants لطراوة عناصر الروابط داخل الدرج
   const listVariants = {
     hidden: { opacity: 0, x: -8 },
     show: (i = 1) => ({
@@ -121,100 +130,130 @@ const Navbar = () => {
 
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 transition-colors duration-300">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-3 lg:px-8">
-        {/* Logo & Toggle */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setIsMobileMenuOpen((v) => !v)}
-            className="lg:hidden text-gray-700 dark:text-gray-200"
-            aria-label="Toggle menu"
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="mobile-menu"
-          >
-            {isMobileMenuOpen ? <X /> : <MenuIcon />}
-          </button>
+      {/* ======= Top Bar (Desktop paddings مضبوطة) ======= */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between py-3 lg:py-4">
+          {/* Logo & Toggle */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              className="lg:hidden text-gray-700 dark:text-gray-200"
+              aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
+            >
+              {isMobileMenuOpen ? <X /> : <MenuIcon />}
+            </button>
 
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="logo" className="w-12 h-12 rounded-full" />
-            <div className="leading-tight">
-              <p className="text-lg font-bold text-gray-800 dark:text-white">Foodzy</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">A Treasure of Tastes</p>
-            </div>
-          </Link>
-        </div>
-
-        {/* Desktop Links */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-200">
-          {NAV_LINKS.map((l) => (
-            <Link key={l.to} to={l.to} className="hover:text-red-500">
-              {l.label}
+            <Link to="/" className="flex items-center gap-2">
+              <img src={logo} alt="logo" className="w-28 h-28 rounded-full" />
+              <div className="leading-tight">
+                <p className="text-lg font-bold text-gray-800 dark:text-white">Foodzy</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">A Treasure of Tastes</p>
+              </div>
             </Link>
-          ))}
-        </nav>
+          </div>
 
-        {/* Phone */}
-        <div className="hidden lg:flex items-center gap-1 text-sm text-gray-500 dark:text-gray-300">
-          <Phone size={16} />
-          <span>+123 (456) 7890</span>
+          {/* Desktop Links */}
+          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-700 dark:text-gray-200">
+            {NAV_LINKS.map((l) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                className={({ isActive }) =>
+                  `${desktopLinkBase} ${isActive ? desktopLinkActive : "text-gray-700 dark:text-gray-200"}`
+                }
+                end={l.to === "/"}
+              >
+                {l.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Phone */}
+          <div className="hidden lg:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
+            <Phone size={16} />
+            <span>+123 (456) 7890</span>
+          </div>
         </div>
       </div>
 
-      {/* Desktop Search + Actions */}
-      <div className="px-4 pb-3 lg:px-8 hidden lg:flex items-center justify-between gap-6">
-        {/* Search */}
-        <div className="flex w-full max-w-4xl border border-gray-300 dark:border-gray-600 rounded overflow-hidden bg-white dark:bg-gray-800">
-          <input
-            type="text"
-            placeholder="Search category (tag)… e.g. Italian, Dessert"
-            className="px-3 py-2 w-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={onSearchKeyDown}
-            aria-label="Search categories"
-          />
-          <button
-            className="bg-black hover:bg-gray-800 text-white px-4 flex items-center justify-center"
-            onClick={runCategorySearch}
-            aria-label="Search Categories"
-            title="Search categories"
-          >
-            <Search size={16} />
-          </button>
-        </div>
+      {/* ======= Desktop Search + Actions (حاوية ومسافات أوضح) ======= */}
+      <div className="hidden lg:block border-t border-gray-200/70 dark:border-gray-700/70">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-8 py-3">
+            {/* Search */}
+            <div className="flex w-full max-w-4xl border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+              <input
+                type="text"
+                placeholder="Search category (tag)… e.g. Italian, Dessert"
+                className="px-3 py-2.5 w-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={onSearchKeyDown}
+                aria-label="Search categories"
+              />
+              <button
+                className="bg-black hover:bg-gray-800 text-white px-4 flex items-center justify-center"
+                onClick={runCategorySearch}
+                aria-label="Search Categories"
+                title="Search categories"
+              >
+                <Search size={16} />
+              </button>
+            </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-6 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
-          {!isLoggedIn ? (
-            <Link to="/login" className="flex items-center gap-1 hover:text-red-500">
-              <User size={18} />
-              <span>Login</span>
-            </Link>
-          ) : (
-            <Link to="/account" className="flex items-center gap-1 hover:text-red-500">
-              <User size={18} />
-              <span>Account</span>
-            </Link>
-          )}
+            {/* Actions */}
+            <div className="flex items-center gap-8 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap">
+              {!isLoggedIn ? (
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) =>
+                    `${desktopLinkBase} ${isActive ? "text-red-600" : ""} flex items-center gap-1`
+                  }
+                >
+                  <User size={18} />
+                  <span>Login</span>
+                </NavLink>
+              ) : (
+                <NavLink
+                  to="/account"
+                  className={({ isActive }) =>
+                    `${desktopLinkBase} ${isActive ? "text-red-600" : ""} flex items-center gap-1`
+                  }
+                >
+                  <User size={18} />
+                  <span>Account</span>
+                </NavLink>
+              )}
 
-          <Link to="/wishlist" className="flex items-center gap-1 hover:text-red-500">
-            <Heart size={18} />
-            <span>Wishlist</span>
-          </Link>
+              <NavLink
+                to="/wishlist"
+                className={({ isActive }) =>
+                  `${desktopLinkBase} ${isActive ? "text-red-600" : ""} flex items-center gap-1`
+                }
+              >
+                <Heart size={18} />
+                <span>Wishlist</span>
+              </NavLink>
 
-          <Link
-            to="/cart"
-            className="relative flex items-center gap-1 hover:text-red-500"
-            aria-label={`Cart${cartCount ? ` (${cartCount})` : ""}`}
-          >
-            <ShoppingCart size={18} />
-            <span>Cart</span>
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 h-5 min-w-[1.25rem] px-1 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
-                {badgeText}
-              </span>
-            )}
-          </Link>
+              <NavLink
+                to="/cart"
+                className={({ isActive }) =>
+                  `${desktopLinkBase} ${isActive ? "text-red-600" : ""} relative flex items-center gap-1`
+                }
+                aria-label={`Cart${cartCount ? ` (${cartCount})` : ""}`}
+              >
+                <ShoppingCart size={18} />
+                <span>Cart</span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-3 h-5 min-w-[1.25rem] px-1 rounded-full text-[10px] leading-5 text-white bg-red-500 text-center font-semibold shadow">
+                    {badgeText}
+                  </span>
+                )}
+              </NavLink>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -300,13 +339,16 @@ const Navbar = () => {
                     animate="show"
                     variants={listVariants}
                   >
-                    <Link
+                    <NavLink
                       to={l.to}
-                      className="block rounded px-3 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className={({ isActive }) =>
+                        `${mobileLinkBase} ${isActive ? "text-red-600" : ""}`
+                      }
                       onClick={() => setIsMobileMenuOpen(false)}
+                      end={l.to === "/"}
                     >
                       {l.label}
-                    </Link>
+                    </NavLink>
                   </motion.div>
                 ))}
               </nav>
@@ -314,27 +356,33 @@ const Navbar = () => {
               {/* Actions / Phone */}
               <div className="mt-auto px-4 py-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <Link
+                  <NavLink
                     to={isLoggedIn ? "/account" : "/login"}
-                    className="flex items-center gap-2 text-sm hover:text-red-500"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 text-sm hover:text-red-500 ${isActive ? "text-red-600" : ""}`
+                    }
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User size={18} />
                     <span>{isLoggedIn ? "Account" : "Login"}</span>
-                  </Link>
+                  </NavLink>
 
-                  <Link
+                  <NavLink
                     to="/wishlist"
-                    className="flex items-center gap-2 text-sm hover:text-red-500"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 text-sm hover:text-red-500 ${isActive ? "text-red-600" : ""}`
+                    }
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Heart size={18} />
                     <span>Wishlist</span>
-                  </Link>
+                  </NavLink>
 
-                  <Link
+                  <NavLink
                     to="/cart"
-                    className="relative flex items-center gap-2 text-sm hover:text-red-500"
+                    className={({ isActive }) =>
+                      `relative flex items-center gap-2 text-sm hover:text-red-500 ${isActive ? "text-red-600" : ""}`
+                    }
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <ShoppingCart size={18} />
@@ -344,7 +392,7 @@ const Navbar = () => {
                         {badgeText}
                       </span>
                     )}
-                  </Link>
+                  </NavLink>
                 </div>
 
                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
@@ -361,4 +409,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
