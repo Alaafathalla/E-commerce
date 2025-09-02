@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import Navbar from "./Components/Navbar/Navbar";
 import Home from "./Pages/Home/Home";
 import Footer from "./Components/Footer/Footer";
@@ -17,7 +17,7 @@ import SingleProduct from "./Pages/SingleProduct/SingleProduct";
 import "./App.css";
 import { FaSun, FaMoon } from "react-icons/fa";
 import SingleProductPage from "./Pages/SingleProduct/SingleProduct";
-
+import WishlistPage from "./Pages/wishlist";
 function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
@@ -61,17 +61,15 @@ function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-                 <Route path="/categories" element={<Categories />} />
+          <Route path="/categories" element={<Categories />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/products" element={<Products />} />
           <Route path="/about" element={<About />} />
-        <Route path="/products/:id" element={<SingleProduct />} />
+          <Route path="/products/:id" element={<SingleProduct />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
         </Routes>
       </main>
       <Footer />
-    
-
-      
     </div>
   );
 }

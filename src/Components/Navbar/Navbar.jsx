@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import logo from "../../assets/logo.png";
 import useCartStore from "../../Stores/useCartStore";
 import useDataStore from "../../Stores/useDataStore";
+import useWishlistStore from "../../Stores/useWishStore";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
@@ -37,7 +38,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const wishlistCount = useWishlistStore((s) => s.items.length);
   const mobileMenuRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -367,16 +368,15 @@ const Navbar = () => {
                     <span>{isLoggedIn ? "Account" : "Login"}</span>
                   </NavLink>
 
-                  <NavLink
-                    to="/wishlist"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 text-sm hover:text-red-500 ${isActive ? "text-red-600" : ""}`
-                    }
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Heart size={18} />
-                    <span>Wishlist</span>
-                  </NavLink>
+      <NavLink to="/wishlist" className="relative flex items-center gap-2">
+        <Heart className="h-5 w-5 text-pink-600" />
+        <span className="text-sm">Wishlist</span>
+        {wishlistCount > 0 && (
+          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-pink-600 text-xs text-white">
+            {wishlistCount}
+          </span>
+        )}
+      </NavLink>
 
                   <NavLink
                     to="/cart"

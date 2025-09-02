@@ -1,17 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, RefreshCcw, Search, Tag, Star, Clock3, Flame } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCcw, Search, Tag, Star, Clock3, Flame, Heart } from "lucide-react";
 import Helmet from "react-helmet";
-import useDataStore from "../../Stores/useDataStore";;
-
-/**
- * Categories (Clean Code)
- * - English UI
- * - Italian is default active filter on first load
- * - URL-driven state (?tag=..., ?page=...)
- * - Robust image fallbacks
- * - Small, focused components
- */
+import useDataStore from "../../Stores/useDataStore";
 
 // ------------------------
 // Constants & Utilities
@@ -40,21 +31,11 @@ const TAG_IMAGES = {
 
 const heroFor = (tag) => (tag ? pickTagImage(tag) : "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1920&auto=format&fit=crop");
 
-
-
 function pickTagImage(tag) {
-  if (!tag) return TAG_IMAGES.soup; // soup كافتراضي عام
-
+  if (!tag) return TAG_IMAGES.soup;
   const key = String(tag).toLowerCase();
-  const candidate = TAG_IMAGES[key];
-
-  // إن كان فيه URL وغير فاضي، نرجّعه، وإلا نستخدم صورة الـsoup
-  return (typeof candidate === "string" && candidate.trim().length > 0)
-    ? candidate
-    : TAG_IMAGES.soup;
+  return TAG_IMAGES[key] || TAG_IMAGES.soup;
 }
-
-
 
 function getSafeImageUrl(url) {
   if (!url || typeof url !== "string" || url.trim() === "") return STATIC_FALLBACK_IMG;
@@ -102,7 +83,19 @@ function ImageWithFallback({ src, alt, className }) {
   );
 }
 
+// ------------------------
+// RecipeCard with Wishlist
+// ------------------------
 function RecipeCard({ r }) {
+  const [wishlist, setWishlist] = useState([]);
+  const isInWishlist = wishlist.includes(r.id);
+
+  const toggleWishlist = () => {
+    setWishlist((prev) =>
+      prev.includes(r.id) ? prev.filter((id) => id !== r.id) : [...prev, r.id]
+    );
+  };
+
   const prep = formatMinutes(r?.prepTimeMinutes) || "";
   const cook = formatMinutes(r?.cookTimeMinutes) || "";
   const total = r?.prepTimeMinutes && r?.cookTimeMinutes ? formatMinutes(r.prepTimeMinutes + r.cookTimeMinutes) : null;
@@ -110,13 +103,22 @@ function RecipeCard({ r }) {
   const subtitle = r?.cuisine || (Array.isArray(r?.mealType) ? r.mealType.join(", ") : "");
 
   return (
-    <article className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition">
-    <Helmet>
-  <title>Categories</title>
-  <meta name="description" content="Browse our hotel categories including rooms, services, and amenities." />
-  <meta property="og:title" content="Categories" />
-</Helmet>
+    <article className="relative rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition">
+      <Helmet>
+        <title>Categories</title>
+      </Helmet>
 
+      {/* Wishlist Button */}
+      <button
+        onClick={toggleWishlist}
+        className={`absolute right-4 top-4 z-10 rounded-full p-2 shadow-md transition ${
+          isInWishlist ? "bg-pink-100 text-red-600" : "bg-white text-gray-500 hover:bg-gray-100"
+        }`}
+      >
+        <Heart className={`h-5 w-5 ${isInWishlist ? "fill-red-600" : ""}`} />
+      </button>
+
+      {/* Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800">
         <ImageWithFallback src={r?.image || r?.thumbnail} alt={r?.name || "Recipe"} className="h-full w-full object-cover" />
         {subtitle && (
@@ -146,6 +148,11 @@ function RecipeCard({ r }) {
     </article>
   );
 }
+
+// ------------------------
+// (Rest of your Categories component stays the same…)
+// ------------------------
+
 
 function TagChip({ label, isActive, onClick }) {
   const to = label ? `?tag=${encodeURIComponent(label)}` : "#";
