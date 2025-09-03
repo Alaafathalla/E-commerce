@@ -1,41 +1,47 @@
 import React from "react";
-import useWishlistStore from "../Stores/useWishStore";
-import { Trash2 } from "lucide-react";
+import { Heart } from "lucide-react";
+import useDataStore from "../Stores/useDataStore";
 
-export default function WishlistPage() {
-  const { items, removeFromWishlist, clearWishlist } = useWishlistStore();
-
-  if (items.length === 0) {
-    return <div className="p-6 text-gray-500">Your wishlist is empty.</div>;
-  }
+export default function Wishlist() {
+  const { wishlist, toggleWishlist } = useDataStore();
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">My Wishlist</h1>
-        <button
-          onClick={clearWishlist}
-          className="rounded-lg bg-red-100 px-4 py-2 text-red-600 hover:bg-red-200"
-        >
-          Clear All
-        </button>
-      </div>
+    <div className="mx-auto max-w-6xl px-4 py-10">
+      <h1 className="text-2xl font-bold mb-6">My Wishlist</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {items.map((r) => (
-          <div key={r.id} className="relative border rounded-lg p-3 bg-white shadow">
-            <img src={r.image} alt={r.name} className="h-40 w-full object-cover rounded-md" />
-            <h2 className="mt-2 font-semibold">{r.name}</h2>
-            <button
-              onClick={() => removeFromWishlist(r.id)}
-              className="absolute top-2 right-2 rounded-full bg-white p-1 shadow hover:bg-red-50"
+      {wishlist.length === 0 ? (
+        <p className="text-gray-500">Your wishlist is empty.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {wishlist.map((r) => (
+            <div
+              key={r.id}
+              className="relative rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition"
             >
-              <Trash2 className="h-4 w-4 text-red-600" />
-            </button>
-          </div>
-        ))}
-      </div>
+              <button
+                onClick={() => toggleWishlist(r)}
+                className="absolute right-4 top-4 rounded-full p-2 transition bg-pink-100 text-red-600"
+              >
+                <Heart className="h-5 w-5 fill-red-600" />
+              </button>
+
+              <img
+                src={r.image}
+                alt={r.name}
+                className="w-full h-40 object-cover rounded-lg"
+              />
+              <h3 className="mt-3 font-semibold">{r.name}</h3>
+              {r.cuisine && (
+                <p className="text-sm text-gray-500">{r.cuisine}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+
+
 
